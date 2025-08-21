@@ -27,6 +27,8 @@ import { useRouter } from "next/navigation";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ShieldAlert } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { categories } from "@/lib/data";
 
 type UserRole = "client" | "artisan";
 
@@ -35,6 +37,7 @@ export default function AuthPage() {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [role, setRole] = useState<UserRole>("client");
+  const [category, setCategory] = useState("");
   const [activeTab, setActiveTab] = useState("login");
   const { toast } = useToast();
   const router = useRouter();
@@ -59,6 +62,7 @@ export default function AuthPage() {
         return;
     };
     try {
+      // In a real app, you would also save the name and category to a 'users' collection in Firestore.
       await createUserWithEmailAndPassword(auth, email, password);
       toast({
         title: "Compte créé",
@@ -125,6 +129,14 @@ export default function AuthPage() {
         });
     }
   };
+  
+  const onRoleChange = (newRole: UserRole) => {
+    setRole(newRole);
+    // Reset category when switching role
+    if(newRole === 'client') {
+        setCategory('');
+    }
+  }
 
   return (
     <div className="container mx-auto flex min-h-[80vh] items-center justify-center px-4 py-16">
@@ -157,7 +169,7 @@ export default function AuthPage() {
             <CardContent className="space-y-4">
                  <div className="space-y-2">
                     <Label>Vous êtes ?</Label>
-                    <RadioGroup defaultValue="client" onValueChange={(value: UserRole) => setRole(value)} className="flex gap-4">
+                    <RadioGroup defaultValue="client" onValueChange={(value: UserRole) => onRoleChange(value)} className="flex gap-4">
                         <div className="flex items-center space-x-2">
                             <RadioGroupItem value="client" id="r1-login" />
                             <Label htmlFor="r1-login">Client</Label>
@@ -218,7 +230,7 @@ export default function AuthPage() {
             <CardContent className="space-y-4">
                 <div className="space-y-2">
                     <Label>Vous êtes ?</Label>
-                    <RadioGroup defaultValue="client" onValueChange={(value: UserRole) => setRole(value)} className="flex gap-4">
+                    <RadioGroup defaultValue="client" onValueChange={(value: UserRole) => onRoleChange(value)} className="flex gap-4">
                         <div className="flex items-center space-x-2">
                             <RadioGroupItem value="client" id="r1-signup" />
                             <Label htmlFor="r1-signup">Client</Label>
@@ -239,6 +251,21 @@ export default function AuthPage() {
                     required
                 />
                 </div>
+                {role === 'artisan' && (
+                    <div className="space-y-2">
+                        <Label htmlFor="category">Catégorie principale</Label>
+                        <Select onValueChange={setCategory} value={category} required>
+                            <SelectTrigger id="category">
+                                <SelectValue placeholder="Sélectionnez votre domaine d'activité" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {categories.map((cat) => (
+                                    <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                )}
                 <div className="space-y-2">
                 <Label htmlFor="email-signup">Email</Label>
                 <Input
