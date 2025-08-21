@@ -14,6 +14,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -297,6 +308,7 @@ function AddArtworkForm({ onArtworkAdd, onOpenChange }: { onArtworkAdd: (artwork
 function ArtisanDashboard() {
   const [artworks, setArtworks] = useState<Artwork[]>(initialArtworks);
   const [isAddArtworkOpen, setIsAddArtworkOpen] = useState(false);
+  const [artworkToDelete, setArtworkToDelete] = useState<Artwork | null>(null);
   const { toast } = useToast();
   
   // For now, we simulate if the user is premium or not. In a real app, this would come from the user's data.
@@ -329,14 +341,15 @@ function ArtisanDashboard() {
     });
   };
 
-  const deleteArtwork = (id: number) => {
-    const artworkToDelete = artworks.find(a => a.id === id);
-    setArtworks(artworks.filter(a => a.id !== id));
+  const handleDeleteConfirm = () => {
+    if (!artworkToDelete) return;
+    setArtworks(artworks.filter(a => a.id !== artworkToDelete.id));
      toast({
       title: 'Oeuvre Supprimée',
-      description: `"${artworkToDelete?.title}" a été supprimée.`,
+      description: `"${artworkToDelete.title}" a été supprimée.`,
       variant: "destructive"
     });
+    setArtworkToDelete(null);
   };
   
   const publishArtwork = (id: number) => {
@@ -351,6 +364,21 @@ function ArtisanDashboard() {
 
   return (
     <div className="container mx-auto py-12">
+       <AlertDialog open={!!artworkToDelete} onOpenChange={(isOpen) => !isOpen && setArtworkToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Êtes-vous sûr de vouloir supprimer cette œuvre ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Cette action est irréversible. L'œuvre "{artworkToDelete?.title}" sera supprimée définitivement.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setArtworkToDelete(null)}>Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteConfirm}>Supprimer</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-headline font-bold">Tableau de Bord</h1>
         <Dialog open={isAddArtworkOpen} onOpenChange={setIsAddArtworkOpen}>
@@ -424,7 +452,7 @@ function ArtisanDashboard() {
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={() => alert('La modification sera bientôt disponible !')}>Modifier</DropdownMenuItem>
                          {artwork.status !== 'Publiée' && <DropdownMenuItem onClick={() => publishArtwork(artwork.id)}>Publier</DropdownMenuItem>}
-                        <DropdownMenuItem className="text-red-500" onClick={() => deleteArtwork(artwork.id)}>Supprimer</DropdownMenuItem>
+                        <DropdownMenuItem className="text-red-500" onClick={() => setArtworkToDelete(artwork)}>Supprimer</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -441,5 +469,3 @@ function ArtisanDashboard() {
 export default function DashboardPage() {
     return <ArtisanDashboard />;
 }
-
-    
