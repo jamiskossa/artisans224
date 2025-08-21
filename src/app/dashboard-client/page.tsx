@@ -6,23 +6,75 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import Image from 'next/image';
 import { Button } from "@/components/ui/button";
-import { Download, ShoppingBag } from "lucide-react";
+import { Download, ShoppingBag, Truck } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
-// Simulating some order data
+// Simulating some order data with shipping details
 const orders = [
-  { id: 'ORD001', date: '2024-07-20', status: 'Livré', total: '251.99 €', items: [
-    { name: 'Sculpture en Bronze', image: 'https://placehold.co/100x100.png' }
-  ]},
-  { id: 'ORD002', date: '2024-07-18', status: 'En cours', total: '120.00 €', items: [
-      { name: 'Chaussures en cuir', image: 'https://placehold.co/100x100.png' }
-  ]},
-  { id: 'ORD003', date: '2024-06-12', status: 'Livré', total: '1.99 €', items: [
-      { name: "Chanson 'Conakry Blues'", image: 'https://placehold.co/100x100.png' }
-  ]},
+  { 
+    id: 'ORD001', 
+    date: '2024-07-20', 
+    status: 'Livré', 
+    total: '251.99 €', 
+    items: [{ name: 'Sculpture en Bronze', image: 'https://placehold.co/100x100.png' }],
+    trackingNumber: 'LP123456789FR',
+    carrier: 'La Poste'
+  },
+  { 
+    id: 'ORD002', 
+    date: '2024-07-18', 
+    status: 'Expédiée', 
+    total: '120.00 €', 
+    items: [{ name: 'Chaussures en cuir', image: 'https://placehold.co/100x100.png' }],
+    trackingNumber: 'DHL987654321',
+    carrier: 'DHL'
+  },
+  { 
+    id: 'ORD003', 
+    date: '2024-06-12', 
+    status: 'Livré', 
+    total: '1.99 €', 
+    items: [{ name: "Chanson 'Conakry Blues'", image: 'https://placehold.co/100x100.png' }],
+    trackingNumber: null, // Digital product
+    carrier: null
+  },
+   { 
+    id: 'ORD004', 
+    date: '2024-07-22', 
+    status: 'En cours', 
+    total: '89.99 €', 
+    items: [{ name: 'Bijoux en argent', image: 'https://placehold.co/100x100.png' }],
+    trackingNumber: null,
+    carrier: null
+  },
 ];
 
 
 export default function ClientDashboardPage() {
+    const { toast } = useToast();
+
+    const handleTrackOrder = (order: typeof orders[0]) => {
+        if(order.trackingNumber && order.carrier){
+            toast({
+                title: `Suivi de la commande ${order.id}`,
+                description: `Transporteur: ${order.carrier}, Numéro: ${order.trackingNumber}. Le colis est en route !`,
+            });
+        }
+    }
+
+    const getStatusBadgeVariant = (status: string) => {
+        switch(status) {
+            case 'Livré':
+                return 'bg-green-500/20 text-green-300';
+            case 'Expédiée':
+                return 'bg-blue-500/20 text-blue-300';
+            case 'En cours':
+                 return 'bg-yellow-500/20 text-yellow-300';
+            default:
+                return 'bg-gray-500/20 text-gray-300';
+        }
+    }
+
   return (
     <div className="container mx-auto py-12">
        <div className="flex justify-between items-center mb-8">
@@ -35,7 +87,7 @@ export default function ClientDashboardPage() {
       <Card>
         <CardHeader>
           <CardTitle>Mes Commandes</CardTitle>
-          <CardDescription>Voici l'historique de vos achats.</CardDescription>
+          <CardDescription>Voici l'historique de vos achats et le suivi de livraison.</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
@@ -62,12 +114,17 @@ export default function ClientDashboardPage() {
                     </TableCell>
                   <TableCell>{order.total}</TableCell>
                    <TableCell>
-                    <Badge variant={order.status === 'Livré' ? 'secondary' : 'default'}
-                        className={`${order.status === 'Livré' ? 'bg-green-500/20 text-green-300' : 'bg-yellow-500/20 text-yellow-300'}`}>
+                    <Badge variant={'secondary'}
+                        className={getStatusBadgeVariant(order.status)}>
                       {order.status}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-right space-x-2">
+                     {order.trackingNumber && (
+                        <Button variant="outline" size="sm" onClick={() => handleTrackOrder(order)}>
+                            <Truck className="mr-2 h-4 w-4" /> Suivre
+                        </Button>
+                     )}
                     <Button variant="outline" size="sm">
                        <Download className="mr-2 h-4 w-4" /> Facture
                     </Button>
