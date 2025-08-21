@@ -3,7 +3,7 @@
 
 import { artisans } from "@/lib/data";
 import Image from "next/image";
-import { notFound } from "next/navigation";
+import { notFound, useParams } from "next/navigation";
 import {
   Carousel,
   CarouselContent,
@@ -18,12 +18,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import React, { useState, useRef, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
-
-interface ArtisanPageProps {
-  params: {
-    id: string;
-  };
-}
 
 const ThreeSixtyViewer = ({ images }: { images: string[] }) => {
   const [currentFrame, setCurrentFrame] = useState(0);
@@ -110,8 +104,10 @@ const ThreeSixtyViewer = ({ images }: { images: string[] }) => {
 };
 
 
-export default function ArtisanPage({ params }: ArtisanPageProps) {
-  const artisan = artisans.find((a) => a.id === params.id);
+export default function ArtisanPage() {
+  const params = useParams();
+  const id = Array.isArray(params.id) ? params.id[0] : params.id;
+  const artisan = artisans.find((a) => a.id === id);
   const { toast } = useToast();
 
   if (!artisan) {
