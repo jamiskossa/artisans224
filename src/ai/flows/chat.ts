@@ -4,26 +4,14 @@
  * @fileOverview A chatbot flow for the Artisans & Créateurs platform.
  * 
  * - chat - A function that handles the chatbot conversation.
- * - ChatMessage - The type for a single chat message.
- * - ChatRequest - The input type for the chat function.
  */
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 import { artisans } from '@/lib/data';
+import type { ChatRequest } from './chat-types';
+import { ChatRequestSchema } from './chat-types';
 
-// Define the schema for a single message in the chat history
-export const ChatMessageSchema = z.object({
-  role: z.enum(['user', 'model']),
-  content: z.string(),
-});
-export type ChatMessage = z.infer<typeof ChatMessageSchema>;
-
-// Define the schema for the chat flow input
-export const ChatRequestSchema = z.object({
-  messages: z.array(ChatMessageSchema),
-});
-export type ChatRequest = z.infer<typeof ChatRequestSchema>;
 
 const systemPrompt = `You are a friendly and helpful sales assistant for an online marketplace called "Artisans & Créateurs".
 Your goal is to help users discover unique products and connect with talented artisans.

@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageSquare, Send, X, Bot } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { chat, ChatMessage } from "@/ai/flows/chat";
+import { chat } from "@/ai/flows/chat";
+import type { ChatMessage } from "@/ai/flows/chat-types";
 import { useToast } from "@/hooks/use-toast";
 
 
