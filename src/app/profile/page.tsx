@@ -9,12 +9,15 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter, usePathname } from "next/navigation";
+import { useRef, useState } from "react";
+import { Camera } from "lucide-react";
 
 export default function ProfilePage() {
   const { toast } = useToast();
   const router = useRouter();
-  const pathname = usePathname();
-
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>("/images/profile/user-avatar.png");
+  
   // Basic role simulation based on referrer or state (a real app would use a session/DB)
   const isArtisan = typeof window !== 'undefined' && (document.referrer.includes('/dashboard') && !document.referrer.includes('client'));
   const dashboardUrl = isArtisan ? '/dashboard' : '/dashboard-client';
@@ -45,28 +48,54 @@ export default function ProfilePage() {
     }
   };
 
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setImagePreview(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+    }
+  };
 
   return (
     <div className="container mx-auto px-4 py-16 max-w-2xl">
       <Card>
         <CardHeader className="text-center">
-            <div className="relative w-24 h-24 mx-auto mb-4">
+            <div className="relative w-24 h-24 mx-auto mb-4 group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
                 <Avatar className="w-full h-full text-4xl">
-                    <AvatarImage src="/images/profile/user-avatar.png" alt="Yattara Ousmane" />
+                    <AvatarImage src={imagePreview ?? undefined} alt="Yattara Ousmane" />
                     <AvatarFallback>YO</AvatarFallback>
                 </Avatar>
+                <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Camera className="h-8 w-8 text-white" />
+                </div>
+                <Input 
+                    type="file" 
+                    ref={fileInputRef} 
+                    onChange={handleImageChange}
+                    className="hidden" 
+                    accept="image/*"
+                />
             </div>
           <CardTitle className="text-3xl">Mon Profil</CardTitle>
           <CardDescription>Gérez les informations de votre compte.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="name">Nom complet</Label>
-            <Input id="name" defaultValue="Yattara Ousmane (Démo)" />
-          </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 <div className="space-y-2">
+                    <Label htmlFor="firstname">Prénom</Label>
+                    <Input id="firstname" defaultValue="Yattara" />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="lastname">Nom de famille</Label>
+                    <Input id="lastname" defaultValue="Ousmane (Démo)" />
+                </div>
+            </div>
           <div className="space-y-2">
             <Label htmlFor="email">Adresse e-mail</Label>
-            <Input id="email" type="email" defaultValue="demo@artisan.com" />
+            <Input id="email" type="email" defaultValue="demo@artisan.com" readOnly />
           </div>
            <div className="space-y-2">
             <Label htmlFor="password">Nouveau mot de passe</Label>
