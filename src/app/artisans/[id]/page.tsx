@@ -22,7 +22,6 @@ import { useToast } from "@/hooks/use-toast";
 import { ChatbotWidget } from "@/components/chatbot-widget";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
-import { use } from 'react';
 
 const ThreeSixtyViewer = ({ images }: { images: string[] }) => {
   const [currentFrame, setCurrentFrame] = useState(0);
@@ -139,7 +138,7 @@ export default function ArtisanPage() {
   const artisan = artisans.find((a) => a.id === id);
   const { toast } = useToast();
 
-  const [user, setUser] = useState<FirebaseUser | null | undefined>(undefined);
+  const [user, setUser] = useState<FirebaseUser | null | undefined>(auth?.currentUser);
 
   useEffect(() => {
     if (auth) {
