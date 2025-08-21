@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/dialog"
 import { useToast } from '@/hooks/use-toast';
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Pie, PieChart, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
-import { ChartContainer, ChartTooltipContent, ChartLegend } from '@/components/ui/chart';
+import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 import { UpgradeToPremium } from '@/components/upgrade-to-premium';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
