@@ -52,7 +52,7 @@ export default function ProfilePage() {
         <CardHeader className="text-center">
             <div className="relative w-24 h-24 mx-auto mb-4">
                 <Avatar className="w-full h-full text-4xl">
-                    <AvatarImage src="https://placehold.co/100x100.png" alt="Yattara Ousmane" />
+                    <AvatarImage src="/images/profile/user-avatar.png" alt="Yattara Ousmane" />
                     <AvatarFallback>YO</AvatarFallback>
                 </Avatar>
             </div>

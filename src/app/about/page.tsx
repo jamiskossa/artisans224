@@ -18,7 +18,7 @@ export default function AboutPage() {
             <CardHeader>
                 <div className="relative w-32 h-32 mx-auto mb-4">
                     <Image
-                        src="https://placehold.co/400x400.png"
+                        src="/images/about/yattara-ousmane.png"
                         alt="Yattara Ousmane"
                         data-ai-hint="portrait man"
                         layout="fill"

@@ -14,9 +14,9 @@ import { useToast } from "@/hooks/use-toast";
 
 // Dummy data for cart items
 const cartItems = [
-    { id: 1, name: "Sculpture en Bronze", price: 250, quantity: 1, image: "https://placehold.co/100x100.png" },
-    { id: 2, name: "Chanson 'Conakry Blues'", price: 1.99, quantity: 1, image: "https://placehold.co/100x100.png" },
-    { id: 3, name: "Chaussures en cuir", price: 120, quantity: 1, image: "https://placehold.co/100x100.png" },
+    { id: 1, name: "Sculpture en Bronze", price: 250, quantity: 1, image: "/images/paiement/sculpture-bronze.png" },
+    { id: 2, name: "Chanson 'Conakry Blues'", price: 1.99, quantity: 1, image: "/images/paiement/conakry-blues.png" },
+    { id: 3, name: "Chaussures en cuir", price: 120, quantity: 1, image: "/images/paiement/chaussures-cuir.png" },
 ]
 
 export default function PaiementPage() {
@@ -132,7 +132,7 @@ export default function PaiementPage() {
                                </TabsContent>
                                <TabsContent value="orange" className="mt-6">
                                     <div className="flex justify-center mb-4">
-                                        <Image src="https://placehold.co/80x50.png" data-ai-hint="orange money logo" alt="Orange Money" width={80} height={50} />
+                                        <Image src="/images/paiement/orange-money-logo.png" data-ai-hint="orange money logo" alt="Orange Money" width={80} height={50} />
                                     </div>
                                     <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); handlePayment("Orange Money"); }}>
                                         <div className="space-y-2">

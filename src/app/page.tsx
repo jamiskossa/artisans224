@@ -10,7 +10,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-tr from-green-500/50 via-yellow-500/50 to-red-500/50 z-10" />
         <div className="absolute inset-0 bg-black/60 z-10" />
          <Image
-          src="https://placehold.co/1800x1200.png"
+          src="/images/hero-background.png"
           alt="Artisan workshop background"
           data-ai-hint="artisan workshop"
           fill

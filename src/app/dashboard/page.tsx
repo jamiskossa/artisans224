@@ -33,9 +33,9 @@ import { Textarea } from '@/components/ui/textarea';
 
 // Simulating some initial artworks for the dashboard
 const initialArtworks = [
-  { id: 1, title: 'Sculpture en Bronze "L\'envol"', image: 'https://placehold.co/100x100.png', price: '450', status: 'Publiée', views: 1200, sales: 5, description: 'Une sculpture magnifique.' },
-  { id: 2, title: 'Chanson "Conakry Blues"', image: 'https://placehold.co/100x100.png', price: '1.99', status: 'Publiée', views: 8500, sales: 1500, description: 'Un morceau soul.' },
-  { id: 3, title: 'Chaussures en cuir "Nomade"', image: 'https://placehold.co/100x100.png', price: '120', status: 'Brouillon', views: 350, sales: 12, description: 'Chaussures faites main.' },
+  { id: 1, title: 'Sculpture en Bronze "L\'envol"', image: '/images/gallery/marc-dupont/1.png', price: '450', status: 'Publiée', views: 1200, sales: 5, description: 'Une sculpture magnifique.' },
+  { id: 2, title: 'Chanson "Conakry Blues"', image: '/images/gallery/amina-traore/1.png', price: '1.99', status: 'Publiée', views: 8500, sales: 1500, description: 'Un morceau soul.' },
+  { id: 3, title: 'Chaussures en cuir "Nomade"', image: '/images/gallery/issa-kone/1.png', price: '120', status: 'Brouillon', views: 350, sales: 12, description: 'Chaussures faites main.' },
 ];
 
 const salesData = [
@@ -441,5 +441,3 @@ function ArtisanDashboard() {
 export default function DashboardPage() {
     return <ArtisanDashboard />;
 }
-
-    

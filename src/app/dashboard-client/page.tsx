@@ -16,7 +16,7 @@ const orders = [
     date: '2024-07-20', 
     status: 'Livré', 
     total: '251.99 €', 
-    items: [{ name: 'Sculpture en Bronze', image: 'https://placehold.co/100x100.png' }],
+    items: [{ name: 'Sculpture en Bronze', image: '/images/paiement/sculpture-bronze.png' }],
     trackingNumber: 'LP123456789FR',
     carrier: 'La Poste'
   },
@@ -25,7 +25,7 @@ const orders = [
     date: '2024-07-18', 
     status: 'Expédiée', 
     total: '120.00 €', 
-    items: [{ name: 'Chaussures en cuir', image: 'https://placehold.co/100x100.png' }],
+    items: [{ name: 'Chaussures en cuir', image: '/images/paiement/chaussures-cuir.png' }],
     trackingNumber: 'DHL987654321',
     carrier: 'DHL'
   },
@@ -34,7 +34,7 @@ const orders = [
     date: '2024-06-12', 
     status: 'Livré', 
     total: '1.99 €', 
-    items: [{ name: "Chanson 'Conakry Blues'", image: 'https://placehold.co/100x100.png' }],
+    items: [{ name: "Chanson 'Conakry Blues'", image: '/images/paiement/conakry-blues.png' }],
     trackingNumber: null, // Digital product
     carrier: null
   },
@@ -43,7 +43,7 @@ const orders = [
     date: '2024-07-22', 
     status: 'En cours', 
     total: '89.99 €', 
-    items: [{ name: 'Bijoux en argent', image: 'https://placehold.co/100x100.png' }],
+    items: [{ name: 'Bijoux en argent', image: '/images/gallery/chloe-leroy/1.png' }],
     trackingNumber: null,
     carrier: null
   },
