@@ -1,3 +1,6 @@
+
+"use client";
+
 import { artisans } from "@/lib/data";
 import Image from "next/image";
 import { notFound } from "next/navigation";
@@ -10,16 +13,101 @@ import {
 } from "@/components/ui/carousel";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Music, Video, PlayCircle, Headphones } from "lucide-react";
+import { Music, Video, PlayCircle, Headphones, Hand } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-
+import React, { useState, useRef, useEffect } from 'react';
 
 interface ArtisanPageProps {
   params: {
     id: string;
   };
 }
+
+const ThreeSixtyViewer = ({ images }: { images: string[] }) => {
+  const [currentFrame, setCurrentFrame] = useState(0);
+  const viewerRef = useRef<HTMLDivElement>(null);
+  const isDragging = useRef(false);
+  const startX = useRef(0);
+  const startFrame = useRef(0);
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    isDragging.current = true;
+    startX.current = e.clientX;
+    startFrame.current = currentFrame;
+    viewerRef.current!.style.cursor = 'grabbing';
+  };
+
+  const handleMouseUp = () => {
+    isDragging.current = false;
+    if (viewerRef.current) {
+        viewerRef.current.style.cursor = 'grab';
+    }
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDragging.current || !viewerRef.current) return;
+    const dx = e.clientX - startX.current;
+    const sensitivity = viewerRef.current.offsetWidth / images.length / 2;
+    const frameChange = Math.round(dx / sensitivity);
+    let newFrame = (startFrame.current + frameChange) % images.length;
+    if (newFrame < 0) newFrame += images.length;
+    setCurrentFrame(newFrame);
+  };
+  
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    isDragging.current = true;
+    startX.current = e.touches[0].clientX;
+    startFrame.current = currentFrame;
+  };
+
+  const handleTouchEnd = () => {
+    isDragging.current = false;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!isDragging.current || !viewerRef.current) return;
+    const dx = e.touches[0].clientX - startX.current;
+    const sensitivity = viewerRef.current.offsetWidth / images.length / 2;
+    const frameChange = Math.round(dx / sensitivity);
+    let newFrame = (startFrame.current + frameChange) % images.length;
+    if (newFrame < 0) newFrame += images.length;
+    setCurrentFrame(newFrame);
+  };
+
+
+  return (
+    <div
+      ref={viewerRef}
+      className="relative w-full max-w-xl mx-auto aspect-square cursor-grab select-none"
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
+      {images.map((src, index) => (
+        <Image
+          key={index}
+          src={src}
+          alt={`Frame ${index + 1}`}
+          data-ai-hint="360 view product"
+          fill
+          className={`object-contain transition-opacity duration-100 ${index === currentFrame ? 'opacity-100' : 'opacity-0'}`}
+          priority={index === 0}
+          draggable="false"
+        />
+      ))}
+       <div className="absolute bottom-4 right-4 bg-background/70 text-foreground p-2 rounded-lg flex items-center gap-2 text-sm pointer-events-none">
+        <Hand className="h-5 w-5" />
+        <span>Glisser pour faire pivoter</span>
+      </div>
+    </div>
+  );
+};
+
 
 export default function ArtisanPage({ params }: ArtisanPageProps) {
   const artisan = artisans.find((a) => a.id === params.id);
@@ -29,6 +117,7 @@ export default function ArtisanPage({ params }: ArtisanPageProps) {
   }
 
   const isMusician = artisan.category === 'Musique';
+  const has360View = ['Sculpture', 'Bijoux', 'Mode'].includes(artisan.category);
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
@@ -124,7 +213,19 @@ export default function ArtisanPage({ params }: ArtisanPageProps) {
         </>
       )}
 
-      {!isMusician && (
+      {has360View && (
+        <div className="mt-12 md:mt-20">
+            <h2 className="text-3xl font-headline font-bold text-center mb-8">
+                Vue 360°
+            </h2>
+             <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">
+                Faites glisser votre souris sur l'image pour faire pivoter l'objet et découvrir chaque détail sous tous les angles.
+            </p>
+            <ThreeSixtyViewer images={artisan.gallery} />
+        </div>
+      )}
+
+      {!isMusician && !has360View && (
         <div className="mt-12 md:mt-20">
             <h2 className="text-3xl font-headline font-bold text-center mb-8">
                 Galerie
@@ -155,3 +256,5 @@ export default function ArtisanPage({ params }: ArtisanPageProps) {
     </div>
   );
 }
+
+    
