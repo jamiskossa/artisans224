@@ -1,6 +1,16 @@
 import { db } from './firebase';
 import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
 
+export type Review = {
+    id: string;
+    author: string;
+    rating: number;
+    title: string;
+    comment: string;
+    date: string;
+    authorAvatar: string;
+};
+
 export type Artisan = {
   id: string;
   name: string;
@@ -9,6 +19,7 @@ export type Artisan = {
   bio: string;
   image: string;
   gallery: string[];
+  reviews: Review[];
 };
 
 export type NewsArticle = {

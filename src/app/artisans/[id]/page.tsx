@@ -23,6 +23,7 @@ import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
 import { useCart } from "@/hooks/use-cart";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ArtisanReviews } from "@/components/artisan-reviews";
 
 const ThreeSixtyViewer = ({ images }: { images: string[] }) => {
   const [currentFrame, setCurrentFrame] = useState(0);
@@ -374,8 +375,11 @@ export default function ArtisanPage() {
             </Carousel>
         </div>
       )}
+
+      <Separator className="my-12 md:my-20" />
+
+      <ArtisanReviews artisan={artisan} />
+
     </div>
   );
 }
-
-    

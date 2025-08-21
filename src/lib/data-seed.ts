@@ -50,6 +50,16 @@ export type Artwork = {
     artisanId: string;
 };
 
+export type Review = {
+    id: string;
+    author: string;
+    rating: number;
+    title: string;
+    comment: string;
+    date: string;
+    authorAvatar: string;
+};
+
 
 export const conversations: Conversation[] = [
   {
@@ -126,6 +136,7 @@ export const artisans: Artisan[] = [
       '/images/gallery/elena-vidal/3.png',
       '/images/gallery/elena-vidal/4.png',
     ],
+    reviews: [],
   },
   {
     id: 'mamadou-aliou-barry',
@@ -139,6 +150,10 @@ export const artisans: Artisan[] = [
       '/images/gallery/marc-dupont/2.png',
       '/images/gallery/marc-dupont/3.png',
       '/images/gallery/marc-dupont/4.png',
+    ],
+    reviews: [
+        { id: 'rev1', author: 'Aissatou Bah', rating: 5, title: 'Absolument magnifique !', comment: "La sculpture que j'ai commandée est arrivée en parfait état. Le niveau de détail est incroyable. C'est encore plus beau en vrai. Un artiste exceptionnel.", date: '2024-07-15', authorAvatar: '/images/profile/sophie-dubois.png' },
+        { id: 'rev2', author: 'Thomas Roy', rating: 4, title: 'Très impressionné', comment: "Une œuvre puissante qui a transformé mon salon. La livraison a été un peu lente, mais l'attente en valait la peine. Je recommande vivement.", date: '2024-06-28', authorAvatar: '/images/profile/thomas-roy.png' },
     ],
   },
   {
@@ -154,6 +169,7 @@ export const artisans: Artisan[] = [
       '/images/gallery/chloe-leroy/3.png',
       '/images/gallery/chloe-leroy/4.png',
     ],
+    reviews: [],
   },
    {
     id: 'sia-haba',
@@ -168,6 +184,7 @@ export const artisans: Artisan[] = [
       '/images/gallery/jean-pierre/3.png',
       '/images/gallery/jean-pierre/4.png',
     ],
+    reviews: [],
   },
   {
     id: 'amina-kourouma',
@@ -182,6 +199,7 @@ export const artisans: Artisan[] = [
       '/images/gallery/amina-traore/3.png',
       '/images/gallery/amina-traore/4.png',
     ],
+    reviews: [],
   },
   {
     id: 'djeli-kouyate',
@@ -196,6 +214,7 @@ export const artisans: Artisan[] = [
       '/images/gallery/djeli-kouyate/3.png',
       '/images/gallery/djeli-kouyate/4.png',
     ],
+    reviews: [],
   },
   {
     id: 'issa-conde',
@@ -210,6 +229,7 @@ export const artisans: Artisan[] = [
       '/images/gallery/issa-kone/3.png',
       '/images/gallery/issa-kone/4.png',
     ],
+    reviews: [],
   },
   {
     id: 'kadiatou-diallo',
@@ -224,6 +244,7 @@ export const artisans: Artisan[] = [
       '/images/gallery/kadiatou-diallo/3.png',
       '/images/gallery/kadiatou-diallo/4.png',
     ],
+    reviews: [],
   }
 ];
 
