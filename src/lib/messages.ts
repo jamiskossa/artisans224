@@ -34,8 +34,8 @@ export const conversations: Conversation[] = [
     id: 'conv-1',
     type: 'client-artisan',
     participants: {
-      'client-1': { id: 'client-1', name: 'Sophie Dubois', role: 'client', avatar: '/images/messages/sophie-dubois.png' },
-      'artisan-elena-vidal': { id: 'artisan-elena-vidal', name: 'Elena Vidal', role: 'artisan', avatar: '/images/messages/elena-vidal.png' },
+      'client-1': { id: 'client-1', name: 'Sophie Dubois', role: 'client', avatar: '/images/profile/sophie-dubois.png' },
+      'artisan-elena-vidal': { id: 'artisan-elena-vidal', name: 'Elena Vidal', role: 'artisan', avatar: '/images/artisans/elena-vidal.png' },
     },
     lastMessage: "Oui, c'est tout à fait possible. Quel est le numéro de commande ?",
     lastMessageTimestamp: '2024-07-28T11:00:00Z',
@@ -49,8 +49,8 @@ export const conversations: Conversation[] = [
     id: 'conv-2',
     type: 'client-artisan',
     participants: {
-      'client-2': { id: 'client-2', name: 'Thomas Roy', role: 'client', avatar: '/images/messages/thomas-roy.png' },
-      'artisan-amina-traore': { id: 'artisan-amina-traore', name: 'Amina Traoré', role: 'artisan', avatar: '/images/messages/amina-traore.png' },
+      'client-2': { id: 'client-2', name: 'Thomas Roy', role: 'client', avatar: '/images/profile/thomas-roy.png' },
+      'artisan-amina-traore': { id: 'artisan-amina-traore', name: 'Amina Traoré', role: 'artisan', avatar: '/images/artisans/amina-traore.png' },
     },
     lastMessage: "Absolument, je serai en concert à Paris le mois prochain !",
     lastMessageTimestamp: '2024-07-27T15:20:00Z',
@@ -63,8 +63,8 @@ export const conversations: Conversation[] = [
     id: 'conv-3',
     type: 'client-artisan',
     participants: {
-      'client-3': { id: 'client-3', name: 'Marie Claire', role: 'client', avatar: '/images/messages/marie-claire.png' },
-      'artisan-issa-kone': { id: 'artisan-issa-kone', name: 'Issa Koné', role: 'artisan', avatar: '/images/messages/issa-kone.png' },
+      'client-3': { id: 'client-3', name: 'Marie Claire', role: 'client', avatar: '/images/profile/marie-claire.png' },
+      'artisan-issa-kone': { id: 'artisan-issa-kone', name: 'Issa Koné', role: 'artisan', avatar: '/images/artisans/issa-kone.png' },
     },
     lastMessage: "Bien sûr, nous proposons la personnalisation.",
     lastMessageTimestamp: '2024-07-26T09:05:00Z',
@@ -77,8 +77,8 @@ export const conversations: Conversation[] = [
     id: 'conv-4',
     type: 'artisan-artisan',
     participants: {
-      'artisan-issa-kone': { id: 'artisan-issa-kone', name: 'Issa Koné', role: 'artisan', avatar: '/images/messages/issa-kone.png' },
-      'artisan-marc-dupont': { id: 'artisan-marc-dupont', name: 'Marc Dupont', role: 'artisan', avatar: '/images/messages/marc-dupont.png' },
+      'artisan-issa-kone': { id: 'artisan-issa-kone', name: 'Issa Koné', role: 'artisan', avatar: '/images/artisans/issa-kone.png' },
+      'artisan-marc-dupont': { id: 'artisan-marc-dupont', name: 'Marc Dupont', role: 'artisan', avatar: '/images/artisans/marc-dupont.png' },
     },
     lastMessage: "Super, merci pour l'info !",
     lastMessageTimestamp: '2024-07-29T14:00:00Z',

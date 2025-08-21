@@ -131,7 +131,7 @@ export default function MessageriePage() {
                     onClick={() => handleSelectConversation(convo)}
                 >
                     <Avatar>
-                    <AvatarImage src={otherParticipant.avatar} />
+                    <AvatarImage src={otherParticipant.avatar} data-ai-hint="person portrait"/>
                     <AvatarFallback>{otherParticipant.name?.charAt(0)}</AvatarFallback>
                     </Avatar>
                     <div className="flex-1 truncate">
@@ -156,7 +156,7 @@ export default function MessageriePage() {
             <>
               <div className="p-4 border-b flex items-center gap-4">
                 <Avatar>
-                   <AvatarImage src={getOtherParticipant(selectedConversation)?.avatar} />
+                   <AvatarImage src={getOtherParticipant(selectedConversation)?.avatar} data-ai-hint="person portrait" />
                    <AvatarFallback>{getOtherParticipant(selectedConversation)?.name.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <div>
@@ -178,7 +178,7 @@ export default function MessageriePage() {
                             isCurrentUser ? "justify-end" : "justify-start"
                         )}
                         >
-                        {!isCurrentUser && <Avatar className="h-8 w-8"><AvatarImage src={sender.avatar} /><AvatarFallback>{sender.name?.charAt(0)}</AvatarFallback></Avatar>}
+                        {!isCurrentUser && <Avatar className="h-8 w-8"><AvatarImage src={sender.avatar} data-ai-hint="person portrait"/><AvatarFallback>{sender.name?.charAt(0)}</AvatarFallback></Avatar>}
                         <div
                             className={cn(
                             "max-w-[70%] rounded-lg px-4 py-2 text-base",

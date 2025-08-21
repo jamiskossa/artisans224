@@ -8,7 +8,6 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
-import { Icons } from "./icons";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, signOut, User as FirebaseUser } from "firebase/auth";
 import {
@@ -23,6 +22,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import Image from "next/image";
 
 
 const navLinks = [
@@ -83,7 +83,7 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center">
         <Link href="/" className="mr-6 flex items-center space-x-2">
-          <Icons.logo className="h-6 w-6" />
+          <Image src="/images/logo.png" alt="Logo" width={24} height={24} data-ai-hint="logo" />
           <span className="font-bold font-headline sm:inline-block">
             Artisans & Créateurs
           </span>
@@ -116,7 +116,7 @@ export function Header() {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src={user?.photoURL ?? ''} alt={user?.displayName ?? 'User'} />
+                    <AvatarImage src={user?.photoURL ?? '/images/profile/user-avatar.png'} alt={user?.displayName ?? 'User'} />
                     <AvatarFallback>{getInitials(user?.displayName)}</AvatarFallback>
                   </Avatar>
                 </Button>
@@ -166,7 +166,7 @@ export function Header() {
             <SheetContent side="left" className="w-[300px] sm:w-[400px]">
               <nav className="flex flex-col gap-4">
                 <Link href="/" className="mb-4 flex items-center gap-2 text-lg font-medium">
-                  <Icons.logo className="h-6 w-6" />
+                  <Image src="/images/logo.png" alt="Logo" width={24} height={24} data-ai-hint="logo" />
                   <span>Artisans & Créateurs</span>
                 </Link>
                 {navLinks.map((link) => (
