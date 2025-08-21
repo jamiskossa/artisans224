@@ -35,6 +35,7 @@ export default function AuthPage() {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [role, setRole] = useState<UserRole>("client");
+  const [activeTab, setActiveTab] = useState("login");
   const { toast } = useToast();
   const router = useRouter();
 
@@ -127,7 +128,7 @@ export default function AuthPage() {
 
   return (
     <div className="container mx-auto flex min-h-[80vh] items-center justify-center px-4 py-16">
-      <Tabs defaultValue="login" className="w-[400px]">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-[400px]">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="login">Connexion</TabsTrigger>
           <TabsTrigger value="signup">Inscription</TabsTrigger>
@@ -147,7 +148,10 @@ export default function AuthPage() {
             <CardHeader>
                 <CardTitle>Connexion</CardTitle>
                 <CardDescription>
-                Accédez à votre compte pour continuer.
+                  Accédez à votre compte pour continuer.{" "}
+                  <button type="button" onClick={() => setActiveTab("signup")} className="font-semibold text-primary underline-offset-4 hover:underline">
+                    Pas encore de compte ? Inscrivez-vous
+                  </button>
                 </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
