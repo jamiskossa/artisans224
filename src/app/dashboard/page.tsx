@@ -202,8 +202,21 @@ function FinancialProjections() {
 function ArtisanDashboard() {
   const [artworks, setArtworks] = useState<Artwork[]>(initialArtworks);
   const { toast } = useToast();
+  
+  // For now, we simulate if the user is premium or not. In a real app, this would come from the user's data.
+  const isPremium = false; 
+  const artworkLimit = 3;
 
   const addArtwork = () => {
+    if (!isPremium && artworks.length >= artworkLimit) {
+        toast({
+            title: "Limite Atteinte",
+            description: "Vous avez atteint la limite de 3 œuvres pour un compte standard. Passez à Premium pour en ajouter plus.",
+            variant: "destructive"
+        });
+        return;
+    }
+
     const newId = artworks.length > 0 ? Math.max(...artworks.map(a => a.id)) + 1 : 1;
     const newArtwork: Artwork = {
       id: newId,
@@ -245,7 +258,7 @@ function ArtisanDashboard() {
     <div className="container mx-auto py-12">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-headline font-bold">Tableau de Bord</h1>
-        <Button onClick={addArtwork}>
+        <Button onClick={addArtwork} disabled={!isPremium && artworks.length >= artworkLimit}>
           <PlusCircle className="mr-2 h-4 w-4" /> Ajouter une oeuvre
         </Button>
       </div>
@@ -254,12 +267,15 @@ function ArtisanDashboard() {
 
       <FinancialProjections />
 
-      <UpgradeToPremium />
+      {!isPremium && <UpgradeToPremium />}
 
       <Card className="mt-8">
         <CardHeader>
           <CardTitle>Mes Oeuvres</CardTitle>
-          <CardDescription>Gérez et publiez vos créations ici.</CardDescription>
+          <CardDescription>
+            Gérez vos créations. Vous avez {artworks.length}/{artworkLimit} œuvres.
+            {!isPremium && ' Passez à Premium pour en ajouter plus.'}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
@@ -317,5 +333,7 @@ function ArtisanDashboard() {
 export default function DashboardPage() {
     return <ArtisanDashboard />;
 }
+
+    
 
     
