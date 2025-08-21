@@ -1,11 +1,11 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { MoreHorizontal, PlusCircle, DollarSign, Eye, Package, TrendingUp, Users, Music, Star } from "lucide-react";
+import { MoreHorizontal, PlusCircle, DollarSign, Eye, Package, TrendingUp, Users, Music, Star, Upload, X } from "lucide-react";
 import Image from 'next/image';
 import {
   DropdownMenu,
@@ -13,17 +13,29 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import { useToast } from '@/hooks/use-toast';
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Pie, PieChart, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { ChartContainer, ChartTooltipContent, ChartLegend } from '@/components/ui/chart';
 import { UpgradeToPremium } from '@/components/upgrade-to-premium';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 
 
 // Simulating some initial artworks for the dashboard
 const initialArtworks = [
-  { id: 1, title: 'Sculpture en Bronze "L\'envol"', image: 'https://placehold.co/100x100.png', price: '450 €', status: 'Publiée', views: 1200, sales: 5 },
-  { id: 2, title: 'Chanson "Conakry Blues"', image: 'https://placehold.co/100x100.png', price: '1.99 €', status: 'Publiée', views: 8500, sales: 1500 },
-  { id: 3, title: 'Chaussures en cuir "Nomade"', image: 'https://placehold.co/100x100.png', price: '120 €', status: 'Brouillon', views: 350, sales: 12 },
+  { id: 1, title: 'Sculpture en Bronze "L\'envol"', image: 'https://placehold.co/100x100.png', price: '450', status: 'Publiée', views: 1200, sales: 5, description: 'Une sculpture magnifique.' },
+  { id: 2, title: 'Chanson "Conakry Blues"', image: 'https://placehold.co/100x100.png', price: '1.99', status: 'Publiée', views: 8500, sales: 1500, description: 'Un morceau soul.' },
+  { id: 3, title: 'Chaussures en cuir "Nomade"', image: 'https://placehold.co/100x100.png', price: '120', status: 'Brouillon', views: 350, sales: 12, description: 'Chaussures faites main.' },
 ];
 
 const salesData = [
@@ -35,7 +47,16 @@ const salesData = [
   { month: 'Juin', sales: 3100 },
 ];
 
-type Artwork = typeof initialArtworks[0];
+type Artwork = {
+    id: number;
+    title: string;
+    image: string;
+    price: string;
+    status: 'Publiée' | 'Brouillon';
+    views: number;
+    sales: number;
+    description: string;
+};
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 const COMMISSION_RATE = 0.15; // 15% commission
@@ -115,6 +136,7 @@ function DashboardStats({ artworks }: { artworks: Artwork[] }) {
                                 <BarChart data={salesData}>
                                     <CartesianGrid vertical={false} />
                                     <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} />
+                                    <YAxis />
                                     <Tooltip cursor={{fill: 'hsl(var(--muted))'}} content={<ChartTooltipContent />} />
                                     <Bar dataKey="sales" fill="hsl(var(--primary))" radius={4} />
                                 </BarChart>
@@ -199,15 +221,89 @@ function FinancialProjections() {
     )
 }
 
+function AddArtworkForm({ onArtworkAdd, onOpenChange }: { onArtworkAdd: (artwork: Omit<Artwork, 'id' | 'status' | 'views' | 'sales'>) => void; onOpenChange: (isOpen: boolean) => void }) {
+    const [title, setTitle] = useState('');
+    const [price, setPrice] = useState('');
+    const [description, setDescription] = useState('');
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreview(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        onArtworkAdd({ title, price, description, image: imagePreview || 'https://placehold.co/100x100.png' });
+        // Reset form
+        setTitle('');
+        setPrice('');
+        setDescription('');
+        setImagePreview(null);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+        onOpenChange(false);
+    };
+    
+    return (
+        <form onSubmit={handleSubmit}>
+            <div className="grid gap-4 py-4">
+                <div className="space-y-2">
+                    <Label htmlFor="title">Titre de l'oeuvre</Label>
+                    <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Ex: Sculpture 'L'envol'" required />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="price">Prix (€)</Label>
+                    <Input id="price" type="number" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="Ex: 450" required />
+                </div>
+                 <div className="space-y-2">
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Décrivez votre oeuvre..." required />
+                </div>
+                <div className="space-y-2">
+                    <Label>Image</Label>
+                    {imagePreview ? (
+                         <div className="relative">
+                            <Image src={imagePreview} alt="Aperçu" width={100} height={100} className="rounded-md object-cover" />
+                            <Button variant="destructive" size="icon" className="absolute top-1 right-1 h-6 w-6" onClick={() => { setImagePreview(null); if(fileInputRef.current) fileInputRef.current.value = ''; }}>
+                                <X className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    ) : (
+                        <div className="w-full h-32 border-2 border-dashed rounded-md flex flex-col justify-center items-center cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                            <Upload className="h-8 w-8 text-muted-foreground" />
+                            <p className="text-sm text-muted-foreground">Cliquez pour choisir un fichier</p>
+                        </div>
+                    )}
+                    <Input id="image" type="file" ref={fileInputRef} onChange={handleImageChange} className="hidden" accept="image/*" />
+                </div>
+            </div>
+            <DialogFooter>
+                <Button type="submit">Ajouter l'oeuvre</Button>
+            </DialogFooter>
+        </form>
+    );
+}
+
+
 function ArtisanDashboard() {
   const [artworks, setArtworks] = useState<Artwork[]>(initialArtworks);
+  const [isFormOpen, setIsFormOpen] = useState(false);
   const { toast } = useToast();
   
   // For now, we simulate if the user is premium or not. In a real app, this would come from the user's data.
   const isPremium = false; 
   const artworkLimit = 3;
 
-  const addArtwork = () => {
+  const handleAddArtwork = (newArtworkData: Omit<Artwork, 'id' | 'status' | 'views' | 'sales'>) => {
     if (!isPremium && artworks.length >= artworkLimit) {
         toast({
             title: "Limite Atteinte",
@@ -217,17 +313,16 @@ function ArtisanDashboard() {
         return;
     }
 
-    const newId = artworks.length > 0 ? Math.max(...artworks.map(a => a.id)) + 1 : 1;
     const newArtwork: Artwork = {
-      id: newId,
-      title: `Nouvelle Oeuvre ${newId}`,
-      image: 'https://placehold.co/100x100.png',
-      price: '0.00 €',
-      status: 'Brouillon',
-      views: 0,
-      sales: 0
+        id: artworks.length > 0 ? Math.max(...artworks.map(a => a.id)) + 1 : 1,
+        ...newArtworkData,
+        status: 'Brouillon',
+        views: 0,
+        sales: 0
     };
-    setArtworks([...artworks, newArtwork]);
+    
+    setArtworks(prevArtworks => [...prevArtworks, newArtwork]);
+    
     toast({
       title: 'Oeuvre Ajoutée',
       description: `"${newArtwork.title}" a été ajoutée à vos brouillons.`,
@@ -258,9 +353,22 @@ function ArtisanDashboard() {
     <div className="container mx-auto py-12">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-headline font-bold">Tableau de Bord</h1>
-        <Button onClick={addArtwork} disabled={!isPremium && artworks.length >= artworkLimit}>
-          <PlusCircle className="mr-2 h-4 w-4" /> Ajouter une oeuvre
-        </Button>
+        <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+            <DialogTrigger asChild>
+                 <Button disabled={!isPremium && artworks.length >= artworkLimit}>
+                    <PlusCircle className="mr-2 h-4 w-4" /> Ajouter une oeuvre
+                </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                <DialogTitle>Ajouter une nouvelle oeuvre</DialogTitle>
+                <DialogDescription>
+                    Remplissez les détails de votre création. Cliquez sur ajouter lorsque vous avez terminé.
+                </DialogDescription>
+                </DialogHeader>
+                <AddArtworkForm onArtworkAdd={handleAddArtwork} onOpenChange={setIsFormOpen} />
+            </DialogContent>
+        </Dialog>
       </div>
 
       <DashboardStats artworks={artworks} />
@@ -294,10 +402,10 @@ function ArtisanDashboard() {
               {artworks.map((artwork) => (
                 <TableRow key={artwork.id}>
                   <TableCell>
-                    <Image src={artwork.image} alt={artwork.title} width={40} height={40} className="rounded-md" />
+                    <Image src={artwork.image} alt={artwork.title} width={40} height={40} className="rounded-md object-cover" />
                   </TableCell>
                   <TableCell className="font-medium">{artwork.title}</TableCell>
-                  <TableCell>{artwork.price}</TableCell>
+                  <TableCell>{artwork.price} €</TableCell>
                    <TableCell>{artwork.views.toLocaleString('fr-FR')}</TableCell>
                    <TableCell>{artwork.sales.toLocaleString('fr-FR')}</TableCell>
                   <TableCell>
@@ -314,7 +422,7 @@ function ArtisanDashboard() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => alert('Modification de ' + artwork.title)}>Modifier</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => alert('La modification sera bientôt disponible !')}>Modifier</DropdownMenuItem>
                          {artwork.status !== 'Publiée' && <DropdownMenuItem onClick={() => publishArtwork(artwork.id)}>Publier</DropdownMenuItem>}
                         <DropdownMenuItem className="text-red-500" onClick={() => deleteArtwork(artwork.id)}>Supprimer</DropdownMenuItem>
                       </DropdownMenuContent>
@@ -333,7 +441,5 @@ function ArtisanDashboard() {
 export default function DashboardPage() {
     return <ArtisanDashboard />;
 }
-
-    
 
     
