@@ -33,6 +33,10 @@ export default function AuthPage() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!auth) {
+        toast({ title: "Error", description: "Firebase is not configured.", variant: "destructive" });
+        return;
+    }
     try {
       await createUserWithEmailAndPassword(auth, email, password);
       toast({
@@ -51,6 +55,10 @@ export default function AuthPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!auth) {
+        toast({ title: "Error", description: "Firebase is not configured.", variant: "destructive" });
+        return;
+    }
     try {
       await signInWithEmailAndPassword(auth, email, password);
       toast({
@@ -68,6 +76,10 @@ export default function AuthPage() {
   };
 
   const handleGoogleSignIn = async () => {
+    if (!auth) {
+        toast({ title: "Error", description: "Firebase is not configured.", variant: "destructive" });
+        return;
+    }
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
@@ -111,6 +123,7 @@ export default function AuthPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
+                    suppressHydrationWarning
                   />
                 </div>
                 <div className="space-y-2">
@@ -121,6 +134,7 @@ export default function AuthPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
+                    suppressHydrationWarning
                   />
                 </div>
               </CardContent>
@@ -158,6 +172,7 @@ export default function AuthPage() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     required
+                    suppressHydrationWarning
                   />
                 </div>
                 <div className="space-y-2">
@@ -169,6 +184,7 @@ export default function AuthPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
+                    suppressHydrationWarning
                   />
                 </div>
                 <div className="space-y-2">
@@ -179,6 +195,7 @@ export default function AuthPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
+                    suppressHydrationWarning
                   />
                 </div>
               </CardContent>
