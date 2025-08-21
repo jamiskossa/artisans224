@@ -1,16 +1,30 @@
+
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { artisans } from "@/lib/data";
+import { getArtisans, Artisan } from "@/lib/data";
 import { ArtisanCard } from "./artisan-card";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "./ui/skeleton";
 
 type Category = "All" | "Mode" | "Sculpture" | "Bijoux" | "Musique" | "Chaussures";
 
 export function ArtisanCatalogue() {
   const [activeTab, setActiveTab] = useState<Category>("All");
   const [searchTerm, setSearchTerm] = useState("");
+  const [artisans, setArtisans] = useState<Artisan[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchArtisans = async () => {
+      setIsLoading(true);
+      const fetchedArtisans = await getArtisans();
+      setArtisans(fetchedArtisans);
+      setIsLoading(false);
+    };
+    fetchArtisans();
+  }, []);
 
   const filteredArtisans = artisans
     .filter((artisan) => 
@@ -54,7 +68,17 @@ export function ArtisanCatalogue() {
           </TabsList>
 
           <TabsContent value={activeTab}>
-             {filteredArtisans.length > 0 ? (
+             {isLoading ? (
+                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                      <div key={i} className="space-y-4">
+                        <Skeleton className="h-[300px] w-full" />
+                        <Skeleton className="h-4 w-3/4" />
+                        <Skeleton className="h-4 w-1/2" />
+                      </div>
+                    ))}
+                 </div>
+             ) : filteredArtisans.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
                 {filteredArtisans.map((artisan) => (
                     <ArtisanCard key={artisan.id} artisan={artisan} />
@@ -69,3 +93,5 @@ export function ArtisanCatalogue() {
     </section>
   );
 }
+
+    

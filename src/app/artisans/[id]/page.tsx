@@ -2,7 +2,7 @@
 
 "use client";
 
-import { artisans } from "@/lib/data";
+import { getArtisan, Artisan } from "@/lib/data";
 import Image from "next/image";
 import { notFound, useParams, useRouter } from "next/navigation";
 import {
@@ -22,6 +22,7 @@ import { useToast } from "@/hooks/use-toast";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
 import { useCart } from "@/hooks/use-cart";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const ThreeSixtyViewer = ({ images }: { images: string[] }) => {
   const [currentFrame, setCurrentFrame] = useState(0);
@@ -135,11 +136,28 @@ const AuthWall = () => {
 export default function ArtisanPage() {
   const params = useParams();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
-  const artisan = artisans.find((a) => a.id === id);
+  const [artisan, setArtisan] = useState<Artisan | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   const { addItem } = useCart();
   const [user, setUser] = useState<FirebaseUser | null | undefined>(auth?.currentUser);
 
+  useEffect(() => {
+    if (id) {
+      const fetchArtisan = async () => {
+        setIsLoading(true);
+        const fetchedArtisan = await getArtisan(id);
+        if (fetchedArtisan) {
+          setArtisan(fetchedArtisan);
+        } else {
+          notFound();
+        }
+        setIsLoading(false);
+      };
+      fetchArtisan();
+    }
+  }, [id]);
+  
   useEffect(() => {
     if (auth) {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -152,18 +170,33 @@ export default function ArtisanPage() {
     }
   }, []);
 
-  if (!artisan) {
-    notFound();
-  }
-  
-  if (user === undefined) {
+  if (isLoading || user === undefined) {
       return (
-        <div className="container mx-auto px-4 py-16 flex items-center justify-center min-h-[60vh]">
-            <p>Chargement...</p>
+        <div className="container mx-auto px-4 py-8 md:py-12">
+            <div className="grid md:grid-cols-5 gap-8 md:gap-12">
+              <div className="md:col-span-2">
+                <Skeleton className="aspect-[3/4] w-full rounded-lg" />
+              </div>
+              <div className="md:col-span-3 space-y-4">
+                <Skeleton className="h-6 w-24" />
+                <Skeleton className="h-12 w-3/4" />
+                <Skeleton className="h-6 w-full" />
+                <Skeleton className="h-6 w-5/6" />
+                <Separator className="my-6" />
+                <Skeleton className="h-8 w-1/3" />
+                <Skeleton className="h-5 w-full" />
+                <Skeleton className="h-5 w-full" />
+                <Skeleton className="h-5 w-4/5" />
+              </div>
+            </div>
         </div>
       );
   }
 
+  if (!artisan) {
+    notFound();
+  }
+  
   if (!user) {
     return <AuthWall />;
   }
@@ -344,3 +377,5 @@ export default function ArtisanPage() {
     </div>
   );
 }
+
+    

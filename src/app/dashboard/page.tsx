@@ -1,11 +1,11 @@
 
 "use client";
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { MoreHorizontal, PlusCircle, DollarSign, Eye, Package, TrendingUp, Users, Music, Star, Upload, X } from "lucide-react";
+import { MoreHorizontal, PlusCircle, DollarSign, Eye, Package, TrendingUp, Users, Music, Star, Upload, X, Loader2 } from "lucide-react";
 import Image from 'next/image';
 import {
   DropdownMenu,
@@ -22,7 +22,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import {
   Dialog,
@@ -40,14 +39,10 @@ import { UpgradeToPremium } from '@/components/upgrade-to-premium';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-
-
-// Simulating some initial artworks for the dashboard
-const initialArtworks = [
-  { id: 1, title: 'Sculpture en Bronze "L\'envol"', image: '/images/gallery/mamadou-aliou-barry/1.png', price: '450', status: 'Publiée', views: 1200, sales: 5, description: 'Une sculpture magnifique.' },
-  { id: 2, title: 'Chanson "Conakry Blues"', image: '/images/gallery/amina-kourouma/1.png', price: '1.99', status: 'Publiée', views: 8500, sales: 1500, description: 'Un morceau soul.' },
-  { id: 3, title: 'Chaussures en cuir "Nomade"', image: '/images/gallery/issa-conde/1.png', price: '120', status: 'Brouillon', views: 350, sales: 12, description: 'Chaussures faites main.' },
-];
+import type { Artwork } from '@/lib/data-seed';
+import { db, auth } from '@/lib/firebase';
+import { collection, onSnapshot, addDoc, doc, deleteDoc, updateDoc, query, where } from 'firebase/firestore';
+import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 
 const salesData = [
   { month: 'Jan', sales: 1200 },
@@ -57,17 +52,6 @@ const salesData = [
   { month: 'Mai', sales: 2500 },
   { month: 'Juin', sales: 3100 },
 ];
-
-type Artwork = {
-    id: number;
-    title: string;
-    image: string;
-    price: string;
-    status: 'Publiée' | 'Brouillon';
-    views: number;
-    sales: number;
-    description: string;
-};
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 const COMMISSION_RATE = 0.15; // 15% commission
@@ -232,12 +216,13 @@ function FinancialProjections() {
     )
 }
 
-function AddArtworkForm({ onArtworkAdd, onOpenChange }: { onArtworkAdd: (artwork: Omit<Artwork, 'id' | 'status' | 'views' | 'sales'>) => void; onOpenChange: (isOpen: boolean) => void }) {
+function AddArtworkForm({ onArtworkAdd, onOpenChange }: { onArtworkAdd: (artwork: Omit<Artwork, 'id' | 'status' | 'views' | 'sales' | 'artisanId'>) => void; onOpenChange: (isOpen: boolean) => void }) {
     const [title, setTitle] = useState('');
     const [price, setPrice] = useState('');
     const [description, setDescription] = useState('');
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -250,18 +235,25 @@ function AddArtworkForm({ onArtworkAdd, onOpenChange }: { onArtworkAdd: (artwork
         }
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        onArtworkAdd({ title, price, description, image: imagePreview || 'https://placehold.co/100x100.png' });
-        // Reset form
-        setTitle('');
-        setPrice('');
-        setDescription('');
-        setImagePreview(null);
-        if (fileInputRef.current) {
-            fileInputRef.current.value = '';
+        setIsSubmitting(true);
+        try {
+            await onArtworkAdd({ title, price, description, image: imagePreview || 'https://placehold.co/100x100.png' });
+            // Reset form
+            setTitle('');
+            setPrice('');
+            setDescription('');
+            setImagePreview(null);
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
+            onOpenChange(false);
+        } catch (error) {
+            console.error("Error adding artwork:", error);
+        } finally {
+            setIsSubmitting(false);
         }
-        onOpenChange(false);
     };
     
     return (
@@ -298,7 +290,10 @@ function AddArtworkForm({ onArtworkAdd, onOpenChange }: { onArtworkAdd: (artwork
                 </div>
             </div>
             <DialogFooter>
-                <Button type="submit">Ajouter l'oeuvre</Button>
+                <Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Ajouter l'oeuvre
+                </Button>
             </DialogFooter>
         </form>
     );
@@ -306,34 +301,70 @@ function AddArtworkForm({ onArtworkAdd, onOpenChange }: { onArtworkAdd: (artwork
 
 
 function ArtisanDashboard() {
-  const [artworks, setArtworks] = useState<Artwork[]>(initialArtworks);
+  const [artworks, setArtworks] = useState<Artwork[]>([]);
+  const [user, setUser] = useState<FirebaseUser | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [isAddArtworkOpen, setIsAddArtworkOpen] = useState(false);
   const [artworkToDelete, setArtworkToDelete] = useState<Artwork | null>(null);
   const { toast } = useToast();
   
-  // For now, we simulate if the user is premium or not. In a real app, this would come from the user's data.
   const isPremium = false; 
   const artworkLimit = 3;
 
-  const handleAddArtwork = (newArtworkData: Omit<Artwork, 'id' | 'status' | 'views' | 'sales'>) => {
+   useEffect(() => {
+        const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
+            setUser(currentUser);
+             if (!currentUser) {
+                setIsLoading(false);
+            }
+        });
+        return () => unsubscribeAuth();
+    }, []);
+
+    useEffect(() => {
+        if (!user) return;
+
+        // In a real app, you'd get the artisan's ID securely
+        const DUMMY_ARTISAN_ID = 'mamadou-aliou-barry';
+        const q = query(collection(db, "artworks"), where("artisanId", "==", DUMMY_ARTISAN_ID));
+        
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+            const fetchedArtworks = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Artwork));
+            setArtworks(fetchedArtworks);
+            setIsLoading(false);
+        }, (error) => {
+            console.error("Error fetching artworks:", error);
+            setIsLoading(false);
+        });
+
+        return () => unsubscribe();
+    }, [user]);
+
+  const handleAddArtwork = async (newArtworkData: Omit<Artwork, 'id' | 'status' | 'views' | 'sales' | 'artisanId'>) => {
+    if (!user) {
+        toast({ title: "Non authentifié", description: "Vous devez être connecté.", variant: "destructive" });
+        return;
+    }
     if (!isPremium && artworks.length >= artworkLimit) {
         toast({
             title: "Limite Atteinte",
-            description: "Vous avez atteint la limite de 3 œuvres pour un compte standard. Passez à Premium pour en ajouter plus.",
+            description: "Passez à Premium pour ajouter plus de 3 œuvres.",
             variant: "destructive"
         });
         return;
     }
 
-    const newArtwork: Artwork = {
-        id: artworks.length > 0 ? Math.max(...artworks.map(a => a.id)) + 1 : 1,
+    const DUMMY_ARTISAN_ID = 'mamadou-aliou-barry';
+
+    const newArtwork = {
         ...newArtworkData,
-        status: 'Brouillon',
+        artisanId: DUMMY_ARTISAN_ID,
+        status: 'Brouillon' as const,
         views: 0,
         sales: 0
     };
     
-    setArtworks(prevArtworks => [...prevArtworks, newArtwork]);
+    await addDoc(collection(db, "artworks"), newArtwork);
     
     toast({
       title: 'Oeuvre Ajoutée',
@@ -341,24 +372,35 @@ function ArtisanDashboard() {
     });
   };
 
-  const handleDeleteConfirm = () => {
-    if (!artworkToDelete) return;
-    setArtworks(artworks.filter(a => a.id !== artworkToDelete.id));
-     toast({
-      title: 'Oeuvre Supprimée',
-      description: `"${artworkToDelete.title}" a été supprimée.`,
-      variant: "destructive"
-    });
+  const handleDeleteConfirm = async () => {
+    if (!artworkToDelete || !artworkToDelete.id) return;
+    try {
+        await deleteDoc(doc(db, "artworks", artworkToDelete.id));
+        toast({
+         title: 'Oeuvre Supprimée',
+         description: `"${artworkToDelete.title}" a été supprimée.`,
+         variant: "destructive"
+       });
+    } catch (error) {
+        console.error("Error deleting artwork: ", error);
+        toast({ title: "Erreur", description: "La suppression a échoué.", variant: "destructive" });
+    }
     setArtworkToDelete(null);
   };
   
-  const publishArtwork = (id: number) => {
-    setArtworks(artworks.map(a => a.id === id ? { ...a, status: 'Publiée' } : a));
-    const artworkToPublish = artworks.find(a => a.id === id);
-    toast({
-      title: 'Oeuvre Publiée!',
-      description: `"${artworkToPublish?.title}" est maintenant en ligne.`,
-    });
+  const publishArtwork = async (id: string) => {
+    try {
+        const artworkRef = doc(db, "artworks", id);
+        await updateDoc(artworkRef, { status: 'Publiée' });
+        const artworkToPublish = artworks.find(a => a.id === id);
+        toast({
+          title: 'Oeuvre Publiée!',
+          description: `"${artworkToPublish?.title}" est maintenant en ligne.`,
+        });
+    } catch(error) {
+        console.error("Error publishing artwork: ", error);
+        toast({ title: "Erreur", description: "La publication a échoué.", variant: "destructive" });
+    }
   };
 
 
@@ -427,37 +469,45 @@ function ArtisanDashboard() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {artworks.map((artwork) => (
-                <TableRow key={artwork.id}>
-                  <TableCell>
-                    <Image src={artwork.image} alt={artwork.title} width={40} height={40} className="rounded-md object-cover" data-ai-hint="artwork image"/>
-                  </TableCell>
-                  <TableCell className="font-medium">{artwork.title}</TableCell>
-                  <TableCell>{artwork.price} €</TableCell>
-                   <TableCell>{artwork.views.toLocaleString('fr-FR')}</TableCell>
-                   <TableCell>{artwork.sales.toLocaleString('fr-FR')}</TableCell>
-                  <TableCell>
-                    <span className={`px-2 py-1 text-xs rounded-full ${artwork.status === 'Publiée' ? 'bg-green-500/20 text-green-300' : 'bg-yellow-500/20 text-yellow-300'}`}>
-                      {artwork.status}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <span className="sr-only">Ouvrir menu</span>
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => alert('La modification sera bientôt disponible !')}>Modifier</DropdownMenuItem>
-                         {artwork.status !== 'Publiée' && <DropdownMenuItem onClick={() => publishArtwork(artwork.id)}>Publier</DropdownMenuItem>}
-                        <DropdownMenuItem className="text-red-500" onClick={() => setArtworkToDelete(artwork)}>Supprimer</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {isLoading ? (
+                  <TableRow>
+                      <TableCell colSpan={7} className="text-center">
+                          <Loader2 className="mx-auto h-6 w-6 animate-spin" />
+                      </TableCell>
+                  </TableRow>
+              ) : (
+                artworks.map((artwork) => (
+                    <TableRow key={artwork.id}>
+                    <TableCell>
+                        <Image src={artwork.image} alt={artwork.title} width={40} height={40} className="rounded-md object-cover" data-ai-hint="artwork image"/>
+                    </TableCell>
+                    <TableCell className="font-medium">{artwork.title}</TableCell>
+                    <TableCell>{artwork.price} €</TableCell>
+                    <TableCell>{artwork.views.toLocaleString('fr-FR')}</TableCell>
+                    <TableCell>{artwork.sales.toLocaleString('fr-FR')}</TableCell>
+                    <TableCell>
+                        <span className={`px-2 py-1 text-xs rounded-full ${artwork.status === 'Publiée' ? 'bg-green-500/20 text-green-300' : 'bg-yellow-500/20 text-yellow-300'}`}>
+                        {artwork.status}
+                        </span>
+                    </TableCell>
+                    <TableCell className="text-right">
+                        <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                            <span className="sr-only">Ouvrir menu</span>
+                            <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => alert('La modification sera bientôt disponible !')}>Modifier</DropdownMenuItem>
+                            {artwork.status !== 'Publiée' && <DropdownMenuItem onClick={() => publishArtwork(artwork.id)}>Publier</DropdownMenuItem>}
+                            <DropdownMenuItem className="text-red-500" onClick={() => setArtworkToDelete(artwork)}>Supprimer</DropdownMenuItem>
+                        </DropdownMenuContent>
+                        </DropdownMenu>
+                    </TableCell>
+                    </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </CardContent>
@@ -469,3 +519,5 @@ function ArtisanDashboard() {
 export default function DashboardPage() {
     return <ArtisanDashboard />;
 }
+
+    

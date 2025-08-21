@@ -1,7 +1,7 @@
 
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, doc, setDoc, addDoc, serverTimestamp } from 'firebase/firestore';
-import { conversations as mockConversations } from '../lib/data-seed';
+import { getFirestore, collection, doc, setDoc, addDoc, writeBatch } from 'firebase/firestore';
+import { conversations as mockConversations, artisans, news, orders, artworks } from '../lib/data-seed';
 
 // IMPORTANT: Replace this with your actual Firebase config
 const firebaseConfig = {
@@ -18,30 +18,53 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+async function seedCollection(collectionName: string, data: any[]) {
+    console.log(`Seeding collection: ${collectionName}...`);
+    const batch = writeBatch(db);
+
+    for (const item of data) {
+        const { id, ...itemData } = item;
+        const docRef = doc(db, collectionName, id);
+        batch.set(docRef, itemData);
+    }
+
+    await batch.commit();
+    console.log(`${collectionName} collection seeded with ${data.length} documents.`);
+}
+
+
 async function seedDatabase() {
     console.log("Starting to seed database...");
+    
+    try {
+        await seedCollection('artisans', artisans);
+        await seedCollection('news', news);
+        await seedCollection('orders', orders);
+        await seedCollection('artworks', artworks);
 
-    for (const convo of mockConversations) {
-        try {
+        // Seed conversations and their sub-collections of messages
+        console.log("Seeding conversations...");
+        for (const convo of mockConversations) {
             const { messages, ...convoData } = convo;
-            
-            // Create a document reference with the specified ID
             const convoRef = doc(db, 'conversations', convo.id);
             await setDoc(convoRef, convoData);
-            console.log(`Seeded conversation: ${convo.id}`);
-
+            
+            const messagesBatch = writeBatch(db);
             const messagesColRef = collection(convoRef, 'messages');
             for (const msg of messages) {
-                await addDoc(messagesColRef, {
+                const msgRef = doc(messagesColRef, msg.id); // Use specific ID for message
+                messagesBatch.set(msgRef, {
                     ...msg,
                     timestamp: new Date(msg.timestamp) // Convert string timestamp to Firestore Timestamp
                 });
             }
+            await messagesBatch.commit();
             console.log(`   - Seeded ${messages.length} messages for ${convo.id}`);
-
-        } catch (error) {
-            console.error(`Error seeding conversation ${convo.id}:`, error);
         }
+        console.log(`Conversations collection seeded.`);
+
+    } catch (error) {
+        console.error("Error during seeding:", error);
     }
 
     console.log("Database seeding finished.");
@@ -55,6 +78,4 @@ seedDatabase().then(() => {
     process.exit(1);
 });
 
-// To run this script:
-// 1. Make sure you have ts-node installed: `npm install -g ts-node`
-// 2. Run from the root of your project: `ts-node src/scripts/seed-db.ts`
+    
