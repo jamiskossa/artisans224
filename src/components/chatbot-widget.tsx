@@ -8,29 +8,33 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageSquare, Send, X, Bot } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { chat, ChatMessage } from "@/ai/flows/chat";
+import { useToast } from "@/hooks/use-toast";
 
-type Message = {
-  text: string;
-  sender: "user" | "bot";
-};
 
 export function ChatbotWidget() {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (isOpen && messages.length === 0) {
-      setMessages([
-        {
-          text: `Bonjour ! Je suis l'assistant virtuel de la plateforme Artisans & Créateurs. Comment puis-je vous aider ?`,
-          sender: "bot",
-        },
-      ]);
+       setIsLoading(true);
+      // Simulate initial bot message fetch
+      setTimeout(() => {
+        setMessages([
+            {
+            role: "model",
+            content: `Bonjour ! Je suis l'assistant virtuel de la plateforme Artisans & Créateurs. Comment puis-je vous aider ?`,
+            },
+        ]);
+        setIsLoading(false);
+      }, 500);
     }
-  }, [isOpen, messages]);
+  }, [isOpen]);
 
   useEffect(() => {
     // Auto-scroll to the bottom
@@ -46,20 +50,32 @@ export function ChatbotWidget() {
     e.preventDefault();
     if (!inputValue.trim()) return;
 
-    const userMessage: Message = { text: inputValue, sender: "user" };
-    setMessages((prev) => [...prev, userMessage]);
+    const userMessage: ChatMessage = { role: "user", content: inputValue };
+    const newMessages = [...messages, userMessage];
+    setMessages(newMessages);
     setInputValue("");
     setIsLoading(true);
 
-    // Simulate bot response
-    setTimeout(() => {
-      const botResponse: Message = {
-        text: `Ceci est une réponse simulée à votre question : "${userMessage.text}". Dans une version future, une IA fournira des réponses détaillées sur les produits et les artisans.`,
-        sender: "bot",
+    try {
+      const botResponse = await chat({ messages: newMessages });
+      
+      const botMessage: ChatMessage = {
+        role: "model",
+        content: botResponse,
       };
-      setMessages((prev) => [...prev, botResponse]);
-      setIsLoading(false);
-    }, 1500);
+      setMessages((prev) => [...prev, botMessage]);
+
+    } catch (error) {
+       toast({
+        title: "Erreur de l'assistant",
+        description: "Désolé, je n'ai pas pu répondre. Veuillez réessayer.",
+        variant: "destructive"
+       });
+        // Restore previous messages state if the call fails
+       setMessages(messages);
+    } finally {
+        setIsLoading(false);
+    }
   };
 
   return (
@@ -97,18 +113,18 @@ export function ChatbotWidget() {
                         key={index}
                         className={cn(
                             "flex items-end gap-2",
-                            msg.sender === "user" ? "justify-end" : "justify-start"
+                            msg.role === "user" ? "justify-end" : "justify-start"
                         )}
                         >
                         <div
                             className={cn(
                             "max-w-[75%] rounded-lg px-3 py-2 text-sm",
-                            msg.sender === "user"
+                            msg.role === "user"
                                 ? "bg-primary text-primary-foreground"
                                 : "bg-muted"
                             )}
                         >
-                            {msg.text}
+                            {msg.content}
                         </div>
                         </div>
                     ))}
@@ -132,12 +148,13 @@ export function ChatbotWidget() {
                   placeholder="Posez une question..."
                   className="pr-12"
                   autoComplete="off"
+                  disabled={isLoading}
                 />
                 <Button
                   type="submit"
                   size="icon"
                   className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8"
-                  disabled={isLoading}
+                  disabled={isLoading || !inputValue.trim()}
                 >
                   <Send className="h-4 w-4" />
                 </Button>
