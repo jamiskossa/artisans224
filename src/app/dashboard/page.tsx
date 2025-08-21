@@ -426,25 +426,27 @@ function NewsManagement({ news, onAddNews, onDeleteNews }: { news: NewsArticle[]
                 </AlertDialogContent>
             </AlertDialog>
             <Card className="mt-8">
-                <CardHeader className="flex-row justify-between items-center">
-                    <div>
-                        <CardTitle>{t.title}</CardTitle>
-                        <CardDescription>{t.description}</CardDescription>
+                <CardHeader>
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <CardTitle>{t.title}</CardTitle>
+                            <CardDescription>{t.description}</CardDescription>
+                        </div>
+                        <Dialog open={isAddNewsOpen} onOpenChange={setIsAddNewsOpen}>
+                            <DialogTrigger asChild>
+                                <Button>
+                                    <PlusCircle className="mr-2 h-4 w-4" /> {t.addNewsButton}
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle>{t.addDialog.title}</DialogTitle>
+                                    <DialogDescription>{t.addDialog.description}</DialogDescription>
+                                </DialogHeader>
+                                <AddNewsForm onNewsAdd={onAddNews} onOpenChange={setIsAddNewsOpen} />
+                            </DialogContent>
+                        </Dialog>
                     </div>
-                    <Dialog open={isAddNewsOpen} onOpenChange={setIsAddNewsOpen}>
-                        <DialogTrigger asChild>
-                            <Button>
-                                <PlusCircle className="mr-2 h-4 w-4" /> {t.addNewsButton}
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle>{t.addDialog.title}</DialogTitle>
-                                <DialogDescription>{t.addDialog.description}</DialogDescription>
-                            </DialogHeader>
-                            <AddNewsForm onNewsAdd={onAddNews} onOpenChange={setIsAddNewsOpen} />
-                        </DialogContent>
-                    </Dialog>
                 </CardHeader>
                 <CardContent>
                     <Table>
