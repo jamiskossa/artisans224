@@ -1,7 +1,7 @@
 export type Artisan = {
   id: string;
   name: string;
-  category: 'Mode' | 'Sculpture' | 'Bijoux' | 'Musique';
+  category: 'Mode' | 'Sculpture' | 'Bijoux' | 'Musique' | 'Chaussures';
   description: string;
   bio: string;
   image: string;
@@ -93,6 +93,20 @@ export const artisans: Artisan[] = [
     category: 'Musique',
     description: 'Maître de la Kora et conteur moderne.',
     bio: 'Héritier d\'une longue lignée de griots, Djeli Kouyaté fait vibrer la kora avec une virtuosité rare. Ses compositions racontent des histoires ancestrales sur des arrangements contemporains, créant un pont entre les générations. Il a collaboré avec des artistes de renommée mondiale et s\'engage à préserver le patrimoine musical mandingue.',
+    image: 'https://placehold.co/600x800.png',
+    gallery: [
+      'https://placehold.co/800x600.png',
+      'https://placehold.co/800x600.png',
+      'https://placehold.co/800x600.png',
+      'https://placehold.co/800x600.png',
+    ],
+  },
+  {
+    id: 'issa-kone',
+    name: 'Issa Koné',
+    category: 'Chaussures',
+    description: 'Chaussures en cuir faites à la main avec une touche moderne.',
+    bio: 'Issa Koné est un maître cordonnier qui allie techniques traditionnelles et design contemporain. Chaque paire est fabriquée à la main dans son atelier de Bamako, en utilisant les meilleurs cuirs locaux. Ses créations sont reconnues pour leur confort, leur durabilité et leur style unique qui honore l\'artisanat malien.',
     image: 'https://placehold.co/600x800.png',
     gallery: [
       'https://placehold.co/800x600.png',

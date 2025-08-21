@@ -117,7 +117,7 @@ export default function ArtisanPage({ params }: ArtisanPageProps) {
   }
 
   const isMusician = artisan.category === 'Musique';
-  const has360View = ['Sculpture', 'Bijoux', 'Mode'].includes(artisan.category);
+  const has360View = ['Sculpture', 'Bijoux', 'Mode', 'Chaussures'].includes(artisan.category);
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12">
