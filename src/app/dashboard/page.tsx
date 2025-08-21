@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { MoreHorizontal, PlusCircle, DollarSign, Eye, Package, TrendingUp } from "lucide-react";
+import { MoreHorizontal, PlusCircle, DollarSign, Eye, Package, TrendingUp, Users, Music, Star } from "lucide-react";
 import Image from 'next/image';
 import {
   DropdownMenu,
@@ -39,6 +39,15 @@ type Artwork = typeof initialArtworks[0];
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 const COMMISSION_RATE = 0.15; // 15% commission
+
+const projectionData = [
+  { name: 'Abonnements Premium', value: 1200, fill: '#8884d8' },
+  { name: 'Commissions Ventes', value: 2500, fill: '#82ca9d' },
+  { name: 'Ventes Musique', value: 800, fill: '#ffc658' },
+  { name: 'Sponsoring', value: 1500, fill: '#ff8042' },
+  { name: 'Publicité', value: 600, fill: '#00C49F' },
+];
+const totalProjectedRevenue = projectionData.reduce((acc, item) => acc + item.value, 0);
 
 
 function DashboardStats({ artworks }: { artworks: Artwork[] }) {
@@ -139,6 +148,57 @@ function DashboardStats({ artworks }: { artworks: Artwork[] }) {
     )
 }
 
+function FinancialProjections() {
+    return (
+        <Card className="mt-8">
+            <CardHeader>
+                <CardTitle>Projections de Revenus Mensuels</CardTitle>
+                <CardDescription>Estimation des revenus basés sur les différentes sources de monétisation.</CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-6 md:grid-cols-2">
+                <div>
+                     <h3 className="text-lg font-semibold mb-4">Répartition des revenus projetés</h3>
+                     <ChartContainer config={{}}>
+                        <ResponsiveContainer width="100%" height={300}>
+                            <BarChart data={projectionData} layout="vertical" margin={{ left: 100 }}>
+                                <CartesianGrid horizontal={false} />
+                                <XAxis type="number" hide />
+                                <YAxis 
+                                    dataKey="name" 
+                                    type="category" 
+                                    tickLine={false} 
+                                    axisLine={false} 
+                                    tickMargin={8}
+                                    width={150}
+                                />
+                                <Tooltip cursor={{fill: 'hsl(var(--muted))'}} content={<ChartTooltipContent />} />
+                                <Bar dataKey="value" radius={4}>
+                                    {projectionData.map((entry) => (
+                                        <Cell key={entry.name} fill={entry.fill} />
+                                    ))}
+                                </Bar>
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </ChartContainer>
+                </div>
+                <div className="flex flex-col justify-center space-y-4">
+                    <div className="text-center">
+                        <p className="text-muted-foreground text-lg">Total Projeté</p>
+                        <p className="text-4xl font-bold">{totalProjectedRevenue.toLocaleString('fr-FR')} €</p>
+                    </div>
+                    <ul className="space-y-2 text-sm">
+                        <li className="flex justify-between items-center"><Users className="mr-2 h-4 w-4 text-muted-foreground" /><span>Abonnements Utilisateurs/Artisans</span> <span className="font-medium">1200 €</span></li>
+                        <li className="flex justify-between items-center"><Package className="mr-2 h-4 w-4 text-muted-foreground" /><span>Commissions sur Ventes</span> <span className="font-medium">2500 €</span></li>
+                        <li className="flex justify-between items-center"><Music className="mr-2 h-4 w-4 text-muted-foreground" /><span>Ventes de Musique</span> <span className="font-medium">800 €</span></li>
+                        <li className="flex justify-between items-center"><Star className="mr-2 h-4 w-4 text-muted-foreground" /><span>Sponsoring & Partenariats</span> <span className="font-medium">1500 €</span></li>
+                        <li className="flex justify-between items-center"><Eye className="mr-2 h-4 w-4 text-muted-foreground" /><span>Publicité (Ads)</span> <span className="font-medium">600 €</span></li>
+                    </ul>
+                </div>
+            </CardContent>
+        </Card>
+    )
+}
+
 function ArtisanDashboard() {
   const [artworks, setArtworks] = useState<Artwork[]>(initialArtworks);
   const { toast } = useToast();
@@ -191,6 +251,8 @@ function ArtisanDashboard() {
       </div>
 
       <DashboardStats artworks={artworks} />
+
+      <FinancialProjections />
 
       <UpgradeToPremium />
 
