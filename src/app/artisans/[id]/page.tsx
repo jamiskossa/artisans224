@@ -13,10 +13,11 @@ import {
 } from "@/components/ui/carousel";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Music, Video, PlayCircle, Headphones, Hand } from "lucide-react";
+import { Music, Video, PlayCircle, Headphones, Hand, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import React, { useState, useRef, useEffect } from 'react';
+import { useToast } from "@/hooks/use-toast";
 
 interface ArtisanPageProps {
   params: {
@@ -111,9 +112,17 @@ const ThreeSixtyViewer = ({ images }: { images: string[] }) => {
 
 export default function ArtisanPage({ params }: ArtisanPageProps) {
   const artisan = artisans.find((a) => a.id === params.id);
+  const { toast } = useToast();
 
   if (!artisan) {
     notFound();
+  }
+
+  const handleAddToCart = (item: string) => {
+    toast({
+        title: "Ajouté au panier!",
+        description: `${item} a été ajouté à votre panier.`,
+    })
   }
 
   const isMusician = artisan.category === 'Musique';
@@ -175,6 +184,9 @@ export default function ArtisanPage({ params }: ArtisanPageProps) {
                            <div className="p-4">
                                 <h3 className="font-semibold text-lg">Titre de la vidéo {index + 1}</h3>
                                 <p className="text-sm text-muted-foreground">Album Name</p>
+                                <Button className="mt-2 w-full" onClick={() => handleAddToCart(`Vidéo ${index + 1}`)}>
+                                    <ShoppingCart className="mr-2 h-4 w-4" /> Acheter la vidéo
+                                </Button>
                             </div>
                         </CardContent>
                       </Card>
@@ -202,9 +214,14 @@ export default function ArtisanPage({ params }: ArtisanPageProps) {
                                     <p className="text-sm text-muted-foreground">{artisan.name}</p>
                                 </div>
                             </div>
-                            <Button size="icon" variant="ghost">
-                                <PlayCircle className="h-6 w-6" />
-                            </Button>
+                            <div className="flex items-center gap-2">
+                                <Button size="icon" variant="ghost">
+                                    <PlayCircle className="h-6 w-6" />
+                                </Button>
+                                <Button size="sm" variant="outline" onClick={() => handleAddToCart(`Chanson ${index + 1}`)}>
+                                    <ShoppingCart className="mr-2 h-4 w-4" /> Acheter
+                                </Button>
+                            </div>
                         </CardContent>
                     </Card>
                 ))}
@@ -215,13 +232,18 @@ export default function ArtisanPage({ params }: ArtisanPageProps) {
 
       {has360View && (
         <div className="mt-12 md:mt-20">
-            <h2 className="text-3xl font-headline font-bold text-center mb-8">
-                Vue 360°
-            </h2>
-             <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">
-                Faites glisser votre souris sur l'image pour faire pivoter l'objet et découvrir chaque détail sous tous les angles.
-            </p>
+            <div className="text-center mb-8">
+                <h2 className="text-3xl font-headline font-bold">Vue 360°</h2>
+                 <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">
+                    Faites glisser votre souris sur l'image pour faire pivoter l'objet et découvrir chaque détail sous tous les angles.
+                </p>
+            </div>
             <ThreeSixtyViewer images={artisan.gallery} />
+            <div className="text-center mt-6">
+                <Button size="lg" onClick={() => handleAddToCart(`${artisan.category} de ${artisan.name}`)}>
+                    <ShoppingCart className="mr-2 h-5 w-5" /> Ajouter au panier
+                </Button>
+            </div>
         </div>
       )}
 
@@ -235,15 +257,25 @@ export default function ArtisanPage({ params }: ArtisanPageProps) {
                 {artisan.gallery.map((imgSrc, index) => (
                 <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
                     <div className="p-1">
-                    <div className="relative group aspect-square w-full overflow-hidden rounded-md cursor-pointer">
-                        <Image
-                        src={imgSrc}
-                        alt={`${artisan.name}'s work ${index + 1}`}
-                        data-ai-hint="craft product"
-                        fill
-                        className="object-cover transition-transform duration-300 group-hover:scale-110"
-                        />
-                    </div>
+                      <Card>
+                        <CardContent className="p-0">
+                          <div className="relative group aspect-square w-full overflow-hidden rounded-md cursor-pointer">
+                              <Image
+                              src={imgSrc}
+                              alt={`${artisan.name}'s work ${index + 1}`}
+                              data-ai-hint="craft product"
+                              fill
+                              className="object-cover transition-transform duration-300 group-hover:scale-110"
+                              />
+                          </div>
+                           <div className="p-4">
+                                <h3 className="font-semibold">Oeuvre #{index + 1}</h3>
+                                <Button className="mt-2 w-full" onClick={() => handleAddToCart(`Oeuvre ${index + 1}`)}>
+                                    <ShoppingCart className="mr-2 h-4 w-4" /> Ajouter au panier
+                                </Button>
+                           </div>
+                        </CardContent>
+                      </Card>
                     </div>
                 </CarouselItem>
                 ))}
@@ -256,5 +288,3 @@ export default function ArtisanPage({ params }: ArtisanPageProps) {
     </div>
   );
 }
-
-    

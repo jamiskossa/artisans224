@@ -1,8 +1,9 @@
+
 "use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, User, LogOut } from "lucide-react";
+import { Menu, User, LogOut, ShoppingCart } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -77,6 +78,12 @@ export function Header() {
           ))}
         </nav>
         <div className="flex flex-1 items-center justify-end gap-2">
+            <Button asChild variant="ghost" size="icon">
+                <Link href="/paiement">
+                    <ShoppingCart className="h-5 w-5" />
+                    <span className="sr-only">Panier</span>
+                </Link>
+            </Button>
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
