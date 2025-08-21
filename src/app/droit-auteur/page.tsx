@@ -27,7 +27,7 @@ export default function DroitAuteurPage() {
         <div className="p-6 rounded-lg border bg-card text-card-foreground">
           <h2 className="text-2xl font-headline font-semibold mb-3">Pour les Acheteurs et Auditeurs</h2>
           <p className="text-muted-foreground leading-relaxed">
-            Lorsque vous achetez une chanson, une vidéo ou une autre création, vous soutenez directement un artiste. Vous obtenez le droit d'écouter, de regarder et de profiter de l'œuvre pour votre usage personnel. Toute reproduction, distribution publique ou utilisation commerciale sans l'autorisation expresse de l'artiste est strictement interdite et constitue une violation des lois sur le droit d'auteur.
+            Lorsque vous achetez une chanson, une vidéo ou une autre création, vous soutenez directement un artiste. Vous obtenez le droit d'écouter, de regarder et de profiter de l'œuvre pour votre usage personnel. Toute reproduction, distribution publique ou utilisation commerciale sans l'autorisation expresse de l'artiste est strictly interdite et constitue une violation des lois sur le droit d'auteur.
           </p>
         </div>
          <div className="text-center pt-6">

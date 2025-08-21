@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { MoreHorizontal, PlusCircle, DollarSign, Eye, Package } from "lucide-react";
+import { MoreHorizontal, PlusCircle, DollarSign, Eye, Package, TrendingUp } from "lucide-react";
 import Image from 'next/image';
 import {
   DropdownMenu,
@@ -19,9 +19,9 @@ import { ChartContainer, ChartTooltipContent, ChartLegend } from '@/components/u
 
 // Simulating some initial artworks for the dashboard
 const initialArtworks = [
-  { id: 1, title: 'Sculpture en Bronze "L\'envol"', image: 'https://placehold.co/100x100.png', price: '450 €', status: 'Publiée', views: 1200 },
-  { id: 2, title: 'Chanson "Conakry Blues"', image: 'https://placehold.co/100x100.png', price: '1.99 €', status: 'Publiée', views: 8500 },
-  { id: 3, title: 'Chaussures en cuir "Nomade"', image: 'https://placehold.co/100x100.png', price: '120 €', status: 'Brouillon', views: 350 },
+  { id: 1, title: 'Sculpture en Bronze "L\'envol"', image: 'https://placehold.co/100x100.png', price: '450 €', status: 'Publiée', views: 1200, sales: 5 },
+  { id: 2, title: 'Chanson "Conakry Blues"', image: 'https://placehold.co/100x100.png', price: '1.99 €', status: 'Publiée', views: 8500, sales: 1500 },
+  { id: 3, title: 'Chaussures en cuir "Nomade"', image: 'https://placehold.co/100x100.png', price: '120 €', status: 'Brouillon', views: 350, sales: 12 },
 ];
 
 const salesData = [
@@ -36,10 +36,12 @@ const salesData = [
 type Artwork = typeof initialArtworks[0];
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+const COMMISSION_RATE = 0.15; // 15% commission
 
 
 function DashboardStats({ artworks }: { artworks: Artwork[] }) {
     const totalSales = 4550;
+    const totalEarnings = totalSales * (1 - COMMISSION_RATE);
     const totalViews = artworks.reduce((sum, art) => sum + art.views, 0);
     const totalArtworks = artworks.length;
 
@@ -48,15 +50,25 @@ function DashboardStats({ artworks }: { artworks: Artwork[] }) {
     return (
         <div className="mb-8">
             <h2 className="text-2xl font-bold mb-4">Statistiques</h2>
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Ventes Totales</CardTitle>
+                        <CardTitle className="text-sm font-medium">Ventes Totales (Brut)</CardTitle>
                         <DollarSign className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{totalSales.toFixed(2)} €</div>
                         <p className="text-xs text-muted-foreground">+20.1% depuis le mois dernier</p>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Vos Gains (Après Commission)</CardTitle>
+                        <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{totalEarnings.toFixed(2)} €</div>
+                        <p className="text-xs text-muted-foreground">Commission de la plateforme: {(COMMISSION_RATE * 100).toFixed(0)}%</p>
                     </CardContent>
                 </Card>
                 <Card>
@@ -138,6 +150,7 @@ function ArtisanDashboard() {
       price: '0.00 €',
       status: 'Brouillon',
       views: 0,
+      sales: 0
     };
     setArtworks([...artworks, newArtwork]);
     toast({
@@ -190,6 +203,7 @@ function ArtisanDashboard() {
                 <TableHead>Titre</TableHead>
                 <TableHead>Prix</TableHead>
                 <TableHead>Vues</TableHead>
+                <TableHead>Ventes</TableHead>
                 <TableHead>Statut</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -203,6 +217,7 @@ function ArtisanDashboard() {
                   <TableCell className="font-medium">{artwork.title}</TableCell>
                   <TableCell>{artwork.price}</TableCell>
                    <TableCell>{artwork.views.toLocaleString('fr-FR')}</TableCell>
+                   <TableCell>{artwork.sales.toLocaleString('fr-FR')}</TableCell>
                   <TableCell>
                     <span className={`px-2 py-1 text-xs rounded-full ${artwork.status === 'Publiée' ? 'bg-green-500/20 text-green-300' : 'bg-yellow-500/20 text-yellow-300'}`}>
                       {artwork.status}
@@ -236,5 +251,3 @@ function ArtisanDashboard() {
 export default function DashboardPage() {
     return <ArtisanDashboard />;
 }
-
-    

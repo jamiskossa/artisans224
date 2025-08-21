@@ -178,10 +178,10 @@ export default function ArtisanPage() {
                                 </div>
                             </div>
                            <div className="p-4">
-                                <h3 className="font-semibold text-lg">Titre de la vidéo {index + 1}</h3>
-                                <p className="text-sm text-muted-foreground">Album Name</p>
-                                <Button className="mt-2 w-full" onClick={() => handleAddToCart(`Vidéo ${index + 1}`)}>
-                                    <ShoppingCart className="mr-2 h-4 w-4" /> Acheter la vidéo
+                                <h3 className="font-semibold text-lg">Clip Vidéo #{index + 1}</h3>
+                                <p className="text-sm text-muted-foreground">Album: Titre de l'album</p>
+                                <Button className="mt-2 w-full" onClick={() => handleAddToCart(`Clip Vidéo ${index + 1}`)}>
+                                    <ShoppingCart className="mr-2 h-4 w-4" /> Acheter le clip (2.99 €)
                                 </Button>
                             </div>
                         </CardContent>
@@ -197,7 +197,7 @@ export default function ArtisanPage() {
 
           <div className="mt-12 md:mt-20">
              <h2 className="text-3xl font-headline font-bold text-center mb-8">
-                Écouter
+                Musique & Albums
             </h2>
             <div className="max-w-3xl mx-auto space-y-4">
                 {artisan.gallery.map((track, index) => (
@@ -207,7 +207,7 @@ export default function ArtisanPage() {
                                 <Headphones className="h-6 w-6 text-primary" />
                                 <div>
                                     <p className="font-semibold">Titre de la chanson {index + 1}</p>
-                                    <p className="text-sm text-muted-foreground">{artisan.name}</p>
+                                    <p className="text-sm text-muted-foreground">{artisan.name} - Album: Titre de l'album</p>
                                 </div>
                             </div>
                             <div className="flex items-center gap-2">
@@ -215,12 +215,17 @@ export default function ArtisanPage() {
                                     <PlayCircle className="h-6 w-6" />
                                 </Button>
                                 <Button size="sm" variant="outline" onClick={() => handleAddToCart(`Chanson ${index + 1}`)}>
-                                    <ShoppingCart className="mr-2 h-4 w-4" /> Acheter
+                                    <ShoppingCart className="mr-2 h-4 w-4" /> Acheter (0.99 €)
                                 </Button>
                             </div>
                         </CardContent>
                     </Card>
                 ))}
+                <div className="text-center pt-4">
+                    <Button size="lg" onClick={() => handleAddToCart(`Album de ${artisan.name}`)}>
+                         <ShoppingCart className="mr-2 h-5 w-5" /> Acheter l'album complet (9.99 €)
+                    </Button>
+                </div>
             </div>
           </div>
         </>
