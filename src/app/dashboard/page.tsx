@@ -5,7 +5,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { MoreHorizontal, PlusCircle, DollarSign, Eye, Package, TrendingUp, Users, Music, Star, Upload, X, Loader2 } from "lucide-react";
+import { MoreHorizontal, PlusCircle, DollarSign, Eye, Package, TrendingUp, Users, Music, Star, Upload, X, Loader2, Newspaper } from "lucide-react";
 import Image from 'next/image';
 import {
   DropdownMenu,
@@ -39,10 +39,11 @@ import { UpgradeToPremium } from '@/components/upgrade-to-premium';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import type { Artwork } from '@/lib/data-seed';
+import type { Artwork, NewsArticle } from '@/lib/data-seed';
 import { db, auth } from '@/lib/firebase';
 import { collection, onSnapshot, addDoc, doc, deleteDoc, updateDoc, query, where } from 'firebase/firestore';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
+import { format } from 'date-fns';
 
 const salesData = [
   { month: 'Jan', sales: 1200 },
@@ -299,9 +300,175 @@ function AddArtworkForm({ onArtworkAdd, onOpenChange }: { onArtworkAdd: (artwork
     );
 }
 
+function AddNewsForm({ onNewsAdd, onOpenChange }: { onNewsAdd: (news: Omit<NewsArticle, 'id'>) => Promise<void>; onOpenChange: (isOpen: boolean) => void }) {
+    const [title, setTitle] = useState('');
+    const [content, setContent] = useState('');
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreview(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+        try {
+            await onNewsAdd({
+                title,
+                content,
+                image: imagePreview || 'https://placehold.co/1200x630.png',
+                date: new Date().toISOString(),
+            });
+            onOpenChange(false);
+        } catch (error) {
+            console.error("Error adding news:", error);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    return (
+        <form onSubmit={handleSubmit}>
+            <div className="grid gap-4 py-4">
+                <div className="space-y-2">
+                    <Label htmlFor="news-title">Titre de l'actualité</Label>
+                    <Input id="news-title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Ex: Grande Exposition à Conakry" required />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="news-content">Contenu</Label>
+                    <Textarea id="news-content" value={content} onChange={(e) => setContent(e.target.value)} placeholder="Rédigez votre article..." required rows={5} />
+                </div>
+                <div className="space-y-2">
+                    <Label>Image de l'article</Label>
+                    {imagePreview ? (
+                        <div className="relative">
+                            <Image src={imagePreview} alt="Aperçu" width={200} height={100} className="rounded-md object-cover" />
+                            <Button variant="destructive" size="icon" className="absolute top-1 right-1 h-6 w-6" onClick={() => { setImagePreview(null); if (fileInputRef.current) fileInputRef.current.value = ''; }}>
+                                <X className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    ) : (
+                        <div className="w-full h-32 border-2 border-dashed rounded-md flex flex-col justify-center items-center cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                            <Upload className="h-8 w-8 text-muted-foreground" />
+                            <p className="text-sm text-muted-foreground">Cliquez pour choisir une image</p>
+                        </div>
+                    )}
+                    <Input id="news-image" type="file" ref={fileInputRef} onChange={handleImageChange} className="hidden" accept="image/*" />
+                </div>
+            </div>
+            <DialogFooter>
+                <Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Publier l'actualité
+                </Button>
+            </DialogFooter>
+        </form>
+    );
+}
+
+function NewsManagement({ news, onAddNews, onDeleteNews }: { news: NewsArticle[], onAddNews: (article: Omit<NewsArticle, 'id'>) => Promise<void>, onDeleteNews: (id: string) => void }) {
+    const [isAddNewsOpen, setIsAddNewsOpen] = useState(false);
+    const [newsToDelete, setNewsToDelete] = useState<NewsArticle | null>(null);
+
+    const handleDeleteConfirm = () => {
+        if (newsToDelete) {
+            onDeleteNews(newsToDelete.id);
+            setNewsToDelete(null);
+        }
+    };
+
+    return (
+        <>
+            <AlertDialog open={!!newsToDelete} onOpenChange={(isOpen) => !isOpen && setNewsToDelete(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Êtes-vous sûr de vouloir supprimer cette actualité ?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Cette action est irréversible. L'article "{newsToDelete?.title}" sera supprimé définitivement.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel onClick={() => setNewsToDelete(null)}>Annuler</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDeleteConfirm}>Supprimer</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+            <Card className="mt-8">
+                <CardHeader className="flex-row justify-between items-center">
+                    <div>
+                        <CardTitle>Gestion des Actualités</CardTitle>
+                        <CardDescription>Ajoutez, modifiez ou supprimez les articles de votre site.</CardDescription>
+                    </div>
+                    <Dialog open={isAddNewsOpen} onOpenChange={setIsAddNewsOpen}>
+                        <DialogTrigger asChild>
+                            <Button>
+                                <PlusCircle className="mr-2 h-4 w-4" /> Ajouter une actualité
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Ajouter une nouvelle actualité</DialogTitle>
+                                <DialogDescription>Remplissez les informations ci-dessous pour publier un nouvel article.</DialogDescription>
+                            </DialogHeader>
+                            <AddNewsForm onNewsAdd={onAddNews} onOpenChange={setIsAddNewsOpen} />
+                        </DialogContent>
+                    </Dialog>
+                </CardHeader>
+                <CardContent>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Titre</TableHead>
+                                <TableHead>Date de publication</TableHead>
+                                <TableHead className="text-right">Actions</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {news.length === 0 ? (
+                                <TableRow>
+                                    <TableCell colSpan={3} className="text-center h-24">Aucune actualité trouvée.</TableCell>
+                                </TableRow>
+                            ) : (
+                                news.map(article => (
+                                    <TableRow key={article.id}>
+                                        <TableCell className="font-medium">{article.title}</TableCell>
+                                        <TableCell>{format(new Date(article.date), 'dd MMMM yyyy')}</TableCell>
+                                        <TableCell className="text-right">
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button variant="ghost" className="h-8 w-8 p-0">
+                                                        <MoreHorizontal className="h-4 w-4" />
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end">
+                                                    <DropdownMenuItem onClick={() => alert('Modification bientôt disponible')}>Modifier</DropdownMenuItem>
+                                                    <DropdownMenuItem className="text-red-500" onClick={() => setNewsToDelete(article)}>Supprimer</DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            )}
+                        </TableBody>
+                    </Table>
+                </CardContent>
+            </Card>
+        </>
+    );
+}
 
 function ArtisanDashboard() {
   const [artworks, setArtworks] = useState<Artwork[]>([]);
+  const [news, setNews] = useState<NewsArticle[]>([]);
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAddArtworkOpen, setIsAddArtworkOpen] = useState(false);
@@ -326,9 +493,9 @@ function ArtisanDashboard() {
 
         // In a real app, you'd get the artisan's ID securely
         const DUMMY_ARTISAN_ID = 'mamadou-aliou-barry';
-        const q = query(collection(db, "artworks"), where("artisanId", "==", DUMMY_ARTISAN_ID));
+        const artworksQuery = query(collection(db, "artworks"), where("artisanId", "==", DUMMY_ARTISAN_ID));
         
-        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const unsubscribeArtworks = onSnapshot(artworksQuery, (querySnapshot) => {
             const fetchedArtworks = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Artwork));
             setArtworks(fetchedArtworks);
             setIsLoading(false);
@@ -337,7 +504,18 @@ function ArtisanDashboard() {
             setIsLoading(false);
         });
 
-        return () => unsubscribe();
+        const newsQuery = query(collection(db, "news"));
+        const unsubscribeNews = onSnapshot(newsQuery, (querySnapshot) => {
+            const fetchedNews = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as NewsArticle));
+            setNews(fetchedNews.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+        }, (error) => {
+            console.error("Error fetching news:", error);
+        });
+
+        return () => {
+          unsubscribeArtworks();
+          unsubscribeNews();
+        }
     }, [user]);
 
   const handleAddArtwork = async (newArtworkData: Omit<Artwork, 'id' | 'status' | 'views' | 'sales' | 'artisanId'>) => {
@@ -400,6 +578,32 @@ function ArtisanDashboard() {
     } catch(error) {
         console.error("Error publishing artwork: ", error);
         toast({ title: "Erreur", description: "La publication a échoué.", variant: "destructive" });
+    }
+  };
+  
+  const handleAddNews = async (newNewsData: Omit<NewsArticle, 'id'>) => {
+    if (!user) {
+      toast({ title: "Non authentifié", description: "Vous devez être connecté.", variant: "destructive" });
+      return;
+    }
+    await addDoc(collection(db, "news"), newNewsData);
+    toast({
+      title: 'Actualité Ajoutée',
+      description: `L'article "${newNewsData.title}" a été publié.`,
+    });
+  };
+
+  const handleDeleteNews = async (id: string) => {
+    try {
+      await deleteDoc(doc(db, "news", id));
+      toast({
+        title: 'Actualité Supprimée',
+        description: `L'article a bien été supprimé.`,
+        variant: 'destructive',
+      });
+    } catch (error) {
+      console.error("Error deleting news:", error);
+      toast({ title: "Erreur", description: "La suppression a échoué.", variant: "destructive" });
     }
   };
 
@@ -512,6 +716,9 @@ function ArtisanDashboard() {
           </Table>
         </CardContent>
       </Card>
+
+      <NewsManagement news={news} onAddNews={handleAddNews} onDeleteNews={handleDeleteNews} />
+
     </div>
   );
 }

@@ -2,7 +2,7 @@
 
 // This file is for seeding the database and is a copy of the original data.
 // It's separate to avoid including it in the main client bundle.
-import type { Artisan, NewsArticle } from './data';
+import type { Artisan } from './data';
 
 export type Message = {
   id: string;
@@ -49,6 +49,15 @@ export type Artwork = {
     description: string;
     artisanId: string;
 };
+
+export type NewsArticle = {
+  id: string;
+  title: string;
+  date: string;
+  image: string;
+  content: string;
+};
+
 
 export type Review = {
     id: string;
