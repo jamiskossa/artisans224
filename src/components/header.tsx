@@ -40,8 +40,7 @@ export function Header() {
   const router = useRouter();
   const { toast } = useToast();
   
-  // Quick simulation of user role. In a real app, this would come from your database.
-  const isArtisan = pathname.startsWith('/dashboard') && !pathname.startsWith('/dashboard-client');
+  const isArtisan = user && !user.email?.includes('client');
 
   useEffect(() => {
     if (auth) {
@@ -50,7 +49,6 @@ export function Header() {
       });
       return () => unsubscribe();
     } else {
-        // If firebase is not configured, stop loading and assume logged out
         setUser(null);
     }
   }, []);
@@ -68,7 +66,6 @@ export function Header() {
             title: "Déconnexion simulée",
             description: "Vous êtes maintenant déconnecté.",
         });
-        // In demo mode, we clear the user state manually
         setUser(null);
         router.push("/");
     }
