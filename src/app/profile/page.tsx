@@ -52,8 +52,8 @@ export default function ProfilePage() {
       await updateProfile(user, {
         displayName: displayName,
         // In a real app, you would upload the new image to Firebase Storage 
-        // and get the URL before updating the profile.
-        // photoURL: newPhotoURL, 
+        // and get the URL before updating the profile. For this demo, we'll use the local preview URL.
+        photoURL: imagePreview, 
       });
 
       toast({
@@ -104,8 +104,10 @@ export default function ProfilePage() {
   };
   
   const getInitials = (name: string | null | undefined) => {
-    if (!name) return "?";
-    return name.split(' ').map(n => n[0]).join('').toUpperCase();
+    if (!name?.trim()) return "?";
+    const parts = name.split(' ').filter(Boolean);
+    if (parts.length === 0) return "?";
+    return parts.map(n => n[0]).join('').toUpperCase();
   }
   
   if (isLoading) {
