@@ -21,6 +21,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
+import { useCart } from "@/hooks/use-cart";
 
 const ThreeSixtyViewer = ({ images }: { images: string[] }) => {
   const [currentFrame, setCurrentFrame] = useState(0);
@@ -136,7 +137,7 @@ export default function ArtisanPage() {
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const artisan = artisans.find((a) => a.id === id);
   const { toast } = useToast();
-
+  const { addItem } = useCart();
   const [user, setUser] = useState<FirebaseUser | null | undefined>(auth?.currentUser);
 
   useEffect(() => {
@@ -155,7 +156,6 @@ export default function ArtisanPage() {
     notFound();
   }
   
-  // Render loading state or auth wall
   if (user === undefined) {
       return (
         <div className="container mx-auto px-4 py-16 flex items-center justify-center min-h-[60vh]">
@@ -168,10 +168,11 @@ export default function ArtisanPage() {
     return <AuthWall />;
   }
 
-  const handleAddToCart = (item: string) => {
+  const handleAddToCart = (item: { id: string; name: string; price: number; image: string; }) => {
+    addItem({ ...item, quantity: 1 });
     toast({
         title: "Ajouté au panier!",
-        description: `${item} a été ajouté à votre panier.`,
+        description: `${item.name} a été ajouté à votre panier.`,
     })
   }
 
@@ -234,7 +235,7 @@ export default function ArtisanPage() {
                            <div className="p-4">
                                 <h3 className="font-semibold text-lg">Clip Vidéo #{index + 1}</h3>
                                 <p className="text-sm text-muted-foreground">Album: Titre de l'album</p>
-                                <Button className="mt-2 w-full" onClick={() => handleAddToCart(`Clip Vidéo ${index + 1}`)}>
+                                <Button className="mt-2 w-full" onClick={() => handleAddToCart({ id: `clip-${artisan.id}-${index}`, name: `Clip Vidéo ${index + 1}`, price: 2.99, image: videoSrc })}>
                                     <ShoppingCart className="mr-2 h-4 w-4" /> Acheter le clip (2.99 €)
                                 </Button>
                             </div>
@@ -268,7 +269,7 @@ export default function ArtisanPage() {
                                 <Button size="icon" variant="ghost">
                                     <PlayCircle className="h-6 w-6" />
                                 </Button>
-                                <Button size="sm" variant="outline" onClick={() => handleAddToCart(`Chanson ${index + 1}`)}>
+                                <Button size="sm" variant="outline" onClick={() => handleAddToCart({ id: `song-${artisan.id}-${index}`, name: `Chanson ${index + 1}`, price: 0.99, image: track })}>
                                     <ShoppingCart className="mr-2 h-4 w-4" /> Acheter (0.99 €)
                                 </Button>
                             </div>
@@ -276,7 +277,7 @@ export default function ArtisanPage() {
                     </Card>
                 ))}
                 <div className="text-center pt-4">
-                    <Button size="lg" onClick={() => handleAddToCart(`Album de ${artisan.name}`)}>
+                    <Button size="lg" onClick={() => handleAddToCart({ id: `album-${artisan.id}`, name: `Album de ${artisan.name}`, price: 9.99, image: artisan.image })}>
                          <ShoppingCart className="mr-2 h-5 w-5" /> Acheter l'album complet (9.99 €)
                     </Button>
                 </div>
@@ -295,7 +296,7 @@ export default function ArtisanPage() {
             </div>
             <ThreeSixtyViewer images={artisan.gallery} />
             <div className="text-center mt-6">
-                <Button size="lg" onClick={() => handleAddToCart(`${artisan.category} de ${artisan.name}`)}>
+                <Button size="lg" onClick={() => handleAddToCart({ id: `product-${artisan.id}`, name: `${artisan.category} de ${artisan.name}`, price: 150, image: artisan.gallery[0] })}>
                     <ShoppingCart className="mr-2 h-5 w-5" /> Ajouter au panier
                 </Button>
             </div>
@@ -325,7 +326,7 @@ export default function ArtisanPage() {
                           </div>
                            <div className="p-4">
                                 <h3 className="font-semibold">Oeuvre #{index + 1}</h3>
-                                <Button className="mt-2 w-full" onClick={() => handleAddToCart(`Oeuvre ${index + 1}`)}>
+                                <Button className="mt-2 w-full" onClick={() => handleAddToCart({ id: `artwork-${artisan.id}-${index}`, name: `Oeuvre ${index + 1}`, price: 75, image: imgSrc })}>
                                     <ShoppingCart className="mr-2 h-4 w-4" /> Ajouter au panier
                                 </Button>
                            </div>

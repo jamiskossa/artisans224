@@ -23,6 +23,8 @@ import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import Image from "next/image";
+import { useCart } from "@/hooks/use-cart";
+import { Badge } from "./ui/badge";
 
 
 const navLinks = [
@@ -39,6 +41,7 @@ export function Header() {
   const [user, setUser] = useState<FirebaseUser | null | undefined>(undefined);
   const router = useRouter();
   const { toast } = useToast();
+  const { items } = useCart();
   
   const isArtisan = user && !user.email?.includes('client');
 
@@ -103,9 +106,12 @@ export function Header() {
           ))}
         </nav>
         <div className="flex flex-1 items-center justify-end gap-2">
-            <Button asChild variant="ghost" size="icon">
+            <Button asChild variant="ghost" size="icon" className="relative">
                 <Link href="/paiement">
                     <ShoppingCart className="h-5 w-5" />
+                    {items.length > 0 && (
+                        <Badge variant="destructive" className="absolute -top-1 -right-1 h-5 w-5 justify-center p-0">{items.length}</Badge>
+                    )}
                     <span className="sr-only">Panier</span>
                 </Link>
             </Button>

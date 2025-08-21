@@ -1,8 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApps, getApp, FirebaseApp } from "firebase/app";
 import { getAuth, Auth } from "firebase/auth";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { getFirestore, Firestore } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -18,18 +17,21 @@ const firebaseConfig = {
 // Initialize Firebase
 let app: FirebaseApp;
 let auth: Auth;
+let db: Firestore;
 
 if (firebaseConfig.apiKey) {
     app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
     auth = getAuth(app);
+    db = getFirestore(app);
 } else {
     // Provide a dummy implementation or null if Firebase is not configured.
     // This is to avoid crashing the app in a development environment 
     // without Firebase credentials.
-    console.warn("Firebase config is missing, Auth features will be disabled.");
+    console.warn("Firebase config is missing, Auth and Firestore features will be disabled.");
     app = null!;
     auth = null!;
+    db = null!;
 }
 
 
-export { app, auth };
+export { app, auth, db };

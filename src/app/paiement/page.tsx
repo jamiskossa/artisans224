@@ -7,23 +7,19 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { CreditCard, ShoppingCart, Smartphone, CheckCircle } from "lucide-react";
+import { CreditCard, ShoppingCart, Smartphone, CheckCircle, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-
-// Dummy data for cart items
-const cartItems = [
-    { id: 1, name: "Sculpture en Bronze", price: 250, quantity: 1, image: "/images/paiement/sculpture-bronze.png" },
-    { id: 2, name: "Chanson 'Conakry Blues'", price: 1.99, quantity: 1, image: "/images/paiement/conakry-blues.png" },
-    { id: 3, name: "Chaussures en cuir", price: 120, quantity: 1, image: "/images/paiement/chaussures-cuir.png" },
-]
+import { useCart } from "@/hooks/use-cart";
+import Link from "next/link";
 
 export default function PaiementPage() {
     const { toast } = useToast();
     const [isLoading, setIsLoading] = useState(false);
+    const { items, removeItem, clearCart } = useCart();
 
-    const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+    const subtotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
     const taxes = subtotal * 0.1; // Example tax rate
     const total = subtotal + taxes;
 
@@ -36,9 +32,22 @@ export default function PaiementPage() {
                 title: "Paiement Réussi!",
                 description: `Votre paiement via ${method} a été traité avec succès.`,
             });
+            clearCart();
         }, 2000);
     };
 
+    if (items.length === 0 && !isLoading) {
+        return (
+            <div className="container mx-auto px-4 py-16 text-center">
+                 <ShoppingCart className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+                <h1 className="text-3xl font-headline font-bold">Votre panier est vide</h1>
+                <p className="text-muted-foreground mt-2">Parcourez notre catalogue pour trouver des créations uniques.</p>
+                <Button asChild className="mt-6">
+                    <Link href="/catalogue">Découvrir les artisans</Link>
+                </Button>
+            </div>
+        )
+    }
 
     return (
         <div className="container mx-auto px-4 py-16">
@@ -58,7 +67,7 @@ export default function PaiementPage() {
                         </CardHeader>
                         <CardContent>
                              <div className="space-y-4">
-                                {cartItems.map(item => (
+                                {items.map(item => (
                                     <div key={item.id} className="flex items-center justify-between">
                                         <div className="flex items-center gap-4">
                                             <div className="relative h-16 w-16 rounded-md overflow-hidden">
@@ -69,7 +78,12 @@ export default function PaiementPage() {
                                                 <p className="text-sm text-muted-foreground">Quantité: {item.quantity}</p>
                                             </div>
                                         </div>
-                                        <p className="font-semibold">{item.price.toFixed(2)} €</p>
+                                        <div className="flex items-center gap-4">
+                                            <p className="font-semibold">{item.price.toFixed(2)} €</p>
+                                            <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive" onClick={() => removeItem(item.id)}>
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
