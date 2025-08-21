@@ -6,7 +6,7 @@ import { artisans } from "@/lib/data";
 import { ArtisanCard } from "./artisan-card";
 import { Input } from "@/components/ui/input";
 
-type Category = "All" | "Mode" | "Sculpture" | "Bijoux";
+type Category = "All" | "Mode" | "Sculpture" | "Bijoux" | "Musique";
 
 export function ArtisanCatalogue() {
   const [activeTab, setActiveTab] = useState<Category>("All");
@@ -44,11 +44,12 @@ export function ArtisanCatalogue() {
           className="w-full"
           onValueChange={(value) => setActiveTab(value as Category)}
         >
-          <TabsList className="grid w-full grid-cols-2 md:w-auto md:mx-auto md:grid-cols-4 mb-8">
+          <TabsList className="grid w-full grid-cols-3 md:w-auto md:mx-auto md:grid-cols-5 mb-8">
             <TabsTrigger value="All">Tous</TabsTrigger>
             <TabsTrigger value="Mode">Mode</TabsTrigger>
             <TabsTrigger value="Sculpture">Sculpture</TabsTrigger>
             <TabsTrigger value="Bijoux">Bijoux</TabsTrigger>
+            <TabsTrigger value="Musique">Musique</TabsTrigger>
           </TabsList>
 
           <TabsContent value={activeTab}>

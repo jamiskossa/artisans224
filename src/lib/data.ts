@@ -1,7 +1,7 @@
 export type Artisan = {
   id: string;
   name: string;
-  category: 'Mode' | 'Sculpture' | 'Bijoux';
+  category: 'Mode' | 'Sculpture' | 'Bijoux' | 'Musique';
   description: string;
   bio: string;
   image: string;
@@ -73,6 +73,34 @@ export const artisans: Artisan[] = [
       'https://placehold.co/800x600.png',
     ],
   },
+  {
+    id: 'amina-traore',
+    name: 'Amina Traoré',
+    category: 'Musique',
+    description: 'Vocaliste Soul aux mélodies envoûtantes.',
+    bio: 'Amina Traoré est une chanteuse et compositrice dont la voix puissante et les paroles poétiques ont captivé les scènes underground. Sa musique fusionne des éléments de soul, de jazz et de rythmes ouest-africains traditionnels. Son dernier album, "Conakry Blues", est une ode à ses racines et un succès critique.',
+    image: 'https://placehold.co/600x800.png',
+    gallery: [
+      'https://placehold.co/800x600.png',
+      'https://placehold.co/800x600.png',
+      'https://placehold.co/800x600.png',
+      'https://placehold.co/800x600.png',
+    ],
+  },
+  {
+    id: 'djeli-kouyate',
+    name: 'Djeli Kouyaté',
+    category: 'Musique',
+    description: 'Maître de la Kora et conteur moderne.',
+    bio: 'Héritier d\'une longue lignée de griots, Djeli Kouyaté fait vibrer la kora avec une virtuosité rare. Ses compositions racontent des histoires ancestrales sur des arrangements contemporains, créant un pont entre les générations. Il a collaboré avec des artistes de renommée mondiale et s\'engage à préserver le patrimoine musical mandingue.',
+    image: 'https://placehold.co/600x800.png',
+    gallery: [
+      'https://placehold.co/800x600.png',
+      'https://placehold.co/800x600.png',
+      'https://placehold.co/800x600.png',
+      'https://placehold.co/800x600.png',
+    ],
+  }
 ];
 
 export const news: NewsArticle[] = [
