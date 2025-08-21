@@ -2,6 +2,65 @@ import { ArtisanCatalogue } from "@/components/artisan-catalogue";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
+import { Card, CardContent } from "@/components/ui/card";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+
+const partners = [
+  { name: "Orange", logo: "/images/partners/orange.png", url: "#" },
+  { name: "Kulu", logo: "/images/partners/kulu.png", url: "#" },
+  { name: "MTN", logo: "/images/partners/mtn.png", url: "#" },
+  { name: "UNESCO", logo: "/images/partners/unesco.png", url: "#" },
+  { name: "Gouvernement Guinéen", logo: "/images/partners/gov.png", url: "#" },
+  { name: "Canal+", logo: "/images/partners/canal.png", url: "#" },
+];
+
+function PartnersSection() {
+    return (
+        <section className="py-12 md:py-20 bg-muted/50">
+            <div className="container mx-auto px-4">
+                <div className="text-center mb-10">
+                    <h2 className="text-3xl md:text-4xl font-headline font-bold">Nos Partenaires</h2>
+                    <p className="text-lg text-muted-foreground mt-2 max-w-2xl mx-auto">
+                        Ils nous font confiance et soutiennent la promotion de la culture et de l'artisanat.
+                    </p>
+                </div>
+                <Carousel 
+                    opts={{
+                        align: "start",
+                        loop: true,
+                    }}
+                    className="w-full max-w-5xl mx-auto"
+                >
+                    <CarouselContent>
+                        {partners.map((partner) => (
+                            <CarouselItem key={partner.name} className="md:basis-1/3 lg:basis-1/5">
+                                <div className="p-1">
+                                    <Link href={partner.url} target="_blank" rel="noopener noreferrer">
+                                        <Card className="flex items-center justify-center p-6 h-32 hover:shadow-lg transition-shadow">
+                                            <div className="relative h-16 w-full">
+                                                <Image
+                                                    src={partner.logo}
+                                                    alt={partner.name}
+                                                    fill
+                                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                                    className="object-contain"
+                                                    data-ai-hint="partner logo"
+                                                />
+                                            </div>
+                                        </Card>
+                                    </Link>
+                                </div>
+                            </CarouselItem>
+                        ))}
+                    </CarouselContent>
+                    <CarouselPrevious className="hidden sm:flex" />
+                    <CarouselNext className="hidden sm:flex" />
+                </Carousel>
+            </div>
+        </section>
+    );
+}
+
 
 export default function Home() {
   return (
@@ -30,6 +89,7 @@ export default function Home() {
       </section>
 
       <ArtisanCatalogue />
+      <PartnersSection />
     </div>
   );
 }

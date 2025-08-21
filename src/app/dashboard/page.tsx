@@ -5,7 +5,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { MoreHorizontal, PlusCircle, DollarSign, Eye, Package, TrendingUp, Users, Music, Star, Upload, X, Loader2, Newspaper } from "lucide-react";
+import { MoreHorizontal, PlusCircle, DollarSign, Eye, Package, TrendingUp, Users, Music, Star, Upload, X, Loader2, Newspaper, Copyright } from "lucide-react";
 import Image from 'next/image';
 import {
   DropdownMenu,
@@ -62,11 +62,12 @@ const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 const COMMISSION_RATE = 0.15; // 15% commission
 
 const projectionData = [
-  { name: 'Abonnements Premium', value: 1200, fill: '#8884d8' },
-  { name: 'Commissions Ventes', value: 2500, fill: '#82ca9d' },
-  { name: 'Ventes Musique', value: 800, fill: '#ffc658' },
-  { name: 'Sponsoring', value: 1500, fill: '#ff8042' },
-  { name: 'Publicité', value: 600, fill: '#00C49F' },
+  { name: translations.fr.dashboard.projections.subscriptions, value: 1200, fill: '#8884d8' },
+  { name: translations.fr.dashboard.projections.salesCommissions, value: 2500, fill: '#82ca9d' },
+  { name: translations.fr.dashboard.projections.musicSales, value: 800, fill: '#ffc658' },
+  { name: translations.fr.dashboard.projections.sponsorship, value: 1500, fill: '#ff8042' },
+  { name: translations.fr.dashboard.projections.advertising, value: 600, fill: '#00C49F' },
+  { name: translations.fr.dashboard.projections.copyright, value: 400, fill: '#a4de6c' },
 ];
 const totalProjectedRevenue = projectionData.reduce((acc, item) => acc + item.value, 0);
 
@@ -215,6 +216,7 @@ function FinancialProjections() {
                         <li className="flex justify-between items-center"><Music className="mr-2 h-4 w-4 text-muted-foreground" /><span>{t.musicSales}</span> <span className="font-medium">800 €</span></li>
                         <li className="flex justify-between items-center"><Star className="mr-2 h-4 w-4 text-muted-foreground" /><span>{t.sponsorship}</span> <span className="font-medium">1500 €</span></li>
                         <li className="flex justify-between items-center"><Eye className="mr-2 h-4 w-4 text-muted-foreground" /><span>{t.advertising}</span> <span className="font-medium">600 €</span></li>
+                        <li className="flex justify-between items-center"><Copyright className="mr-2 h-4 w-4 text-muted-foreground" /><span>{t.copyright}</span> <span className="font-medium">400 €</span></li>
                     </ul>
                 </div>
             </CardContent>
@@ -512,16 +514,11 @@ function ArtisanDashboard() {
 
     useEffect(() => {
         if (!user) {
-            // Handle case where user is not logged in, or auth is still initializing
             if (auth?.currentUser === null) {
                 setIsLoading(false);
             }
             return;
         }
-
-        // Use the actual user's UID to find their artisan profile ID
-        // For demo, we still use a hardcoded mapping, but this is where you'd look up the artisan profile
-        const DUMMY_ARTISAN_ID = user?.email === "mamadou.barry@example.com" ? "mamadou-aliou-barry" : "fatoumata-camara";
         
         const artworksQuery = query(collection(db, "artworks"), where("artisanId", "==", user.uid));
         
@@ -534,7 +531,6 @@ function ArtisanDashboard() {
             setIsLoading(false);
         });
 
-        // News is not artisan-specific, so the query remains the same
         const newsQuery = query(collection(db, "news"));
         const unsubscribeNews = onSnapshot(newsQuery, (querySnapshot) => {
             const fetchedNews = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as NewsArticle));
@@ -565,7 +561,7 @@ function ArtisanDashboard() {
 
     const newArtwork: Omit<Artwork, 'id'> = {
         ...newArtworkData,
-        artisanId: user.uid, // Use the real user ID
+        artisanId: user.uid,
         status: 'Brouillon' as const,
         views: 0,
         sales: 0
@@ -754,5 +750,3 @@ function ArtisanDashboard() {
 export default function DashboardPage() {
     return <ArtisanDashboard />;
 }
-
-    

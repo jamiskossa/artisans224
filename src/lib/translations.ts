@@ -35,7 +35,8 @@ export const translations = {
         salesCommissions: "Commissions sur Ventes",
         musicSales: "Ventes Musique",
         sponsorship: "Sponsoring",
-        advertising: "Publicité"
+        advertising: "Publicité",
+        copyright: "Droits d'auteur"
       },
       addArtworkForm: {
         titleLabel: "Titre de l'œuvre",
