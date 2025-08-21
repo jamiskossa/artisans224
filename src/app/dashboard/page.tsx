@@ -31,7 +31,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
+} from '@/components/ui/dialog'
 import { useToast } from '@/hooks/use-toast';
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Pie, PieChart, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
@@ -47,6 +47,7 @@ import { format } from 'date-fns';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { categories } from '@/lib/data';
 import { translations } from '@/lib/translations';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 
 const salesData = [
@@ -268,50 +269,54 @@ function AddArtworkForm({ onArtworkAdd, onOpenChange }: { onArtworkAdd: (artwork
     };
     
     return (
-        <form onSubmit={handleSubmit} className="grid gap-4 py-4">
-            <div className="space-y-2">
-                <Label htmlFor="title">{t.titleLabel}</Label>
-                <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t.titlePlaceholder} required />
-            </div>
-             <div className="space-y-2">
-                <Label htmlFor="category">{t.categoryLabel}</Label>
-                <Select value={category} onValueChange={(value) => setCategory(value as typeof categories[number])} required>
-                    <SelectTrigger id="category">
-                        <SelectValue placeholder={t.categoryPlaceholder} />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {categories.map((cat) => (
-                            <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            </div>
-            <div className="space-y-2">
-                <Label htmlFor="price">{t.priceLabel}</Label>
-                <Input id="price" type="number" value={price} onChange={(e) => setPrice(e.target.value)} placeholder={t.pricePlaceholder} required />
-            </div>
-             <div className="space-y-2">
-                <Label htmlFor="description">{t.descriptionLabel}</Label>
-                <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder={t.descriptionPlaceholder} required />
-            </div>
-            <div className="space-y-2">
-                <Label>{t.imageLabel}</Label>
-                {imagePreview ? (
-                     <div className="relative">
-                        <Image src={imagePreview} alt="Aperçu" width={100} height={100} className="rounded-md object-cover" />
-                        <Button variant="destructive" size="icon" className="absolute top-1 right-1 h-6 w-6" onClick={() => { setImagePreview(null); if(fileInputRef.current) fileInputRef.current.value = ''; }}>
-                            <X className="h-4 w-4" />
-                        </Button>
+        <form onSubmit={handleSubmit} className="flex flex-col h-full">
+            <ScrollArea className="flex-grow pr-6 -mr-6 max-h-[70vh]">
+                <div className="grid gap-4 py-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="title">{t.titleLabel}</Label>
+                        <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t.titlePlaceholder} required />
                     </div>
-                ) : (
-                    <div className="w-full h-32 border-2 border-dashed rounded-md flex flex-col justify-center items-center cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-                        <Upload className="h-8 w-8 text-muted-foreground" />
-                        <p className="text-sm text-muted-foreground">{t.imagePlaceholder}</p>
+                     <div className="space-y-2">
+                        <Label htmlFor="category">{t.categoryLabel}</Label>
+                        <Select value={category} onValueChange={(value) => setCategory(value as typeof categories[number])} required>
+                            <SelectTrigger id="category">
+                                <SelectValue placeholder={t.categoryPlaceholder} />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {categories.map((cat) => (
+                                    <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                     </div>
-                )}
-                <Input id="image" type="file" ref={fileInputRef} onChange={handleImageChange} className="hidden" accept="image/*" />
-            </div>
-            <DialogFooter>
+                    <div className="space-y-2">
+                        <Label htmlFor="price">{t.priceLabel}</Label>
+                        <Input id="price" type="number" value={price} onChange={(e) => setPrice(e.target.value)} placeholder={t.pricePlaceholder} required />
+                    </div>
+                     <div className="space-y-2">
+                        <Label htmlFor="description">{t.descriptionLabel}</Label>
+                        <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder={t.descriptionPlaceholder} required />
+                    </div>
+                    <div className="space-y-2">
+                        <Label>{t.imageLabel}</Label>
+                        {imagePreview ? (
+                             <div className="relative">
+                                <Image src={imagePreview} alt="Aperçu" width={100} height={100} className="rounded-md object-cover" />
+                                <Button variant="destructive" size="icon" className="absolute top-1 right-1 h-6 w-6" onClick={() => { setImagePreview(null); if(fileInputRef.current) fileInputRef.current.value = ''; }}>
+                                    <X className="h-4 w-4" />
+                                </Button>
+                            </div>
+                        ) : (
+                            <div className="w-full h-32 border-2 border-dashed rounded-md flex flex-col justify-center items-center cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                                <Upload className="h-8 w-8 text-muted-foreground" />
+                                <p className="text-sm text-muted-foreground">{t.imagePlaceholder}</p>
+                            </div>
+                        )}
+                        <Input id="image" type="file" ref={fileInputRef} onChange={handleImageChange} className="hidden" accept="image/*" />
+                    </div>
+                </div>
+            </ScrollArea>
+            <DialogFooter className="pt-4 flex-shrink-0">
                 <Button type="submit" disabled={isSubmitting}>
                     {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     {t.submitButton}
@@ -359,35 +364,37 @@ function AddNewsForm({ onNewsAdd, onOpenChange }: { onNewsAdd: (news: Omit<NewsA
     };
 
     return (
-        <form onSubmit={handleSubmit}>
-            <div className="grid gap-4 py-4">
-                <div className="space-y-2">
-                    <Label htmlFor="news-title">{t.titleLabel}</Label>
-                    <Input id="news-title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t.titlePlaceholder} required />
+        <form onSubmit={handleSubmit} className="flex flex-col h-full">
+            <ScrollArea className="flex-grow pr-6 -mr-6 max-h-[70vh]">
+                <div className="grid gap-4 py-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="news-title">{t.titleLabel}</Label>
+                        <Input id="news-title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t.titlePlaceholder} required />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="news-content">{t.contentLabel}</Label>
+                        <Textarea id="news-content" value={content} onChange={(e) => setContent(e.target.value)} placeholder={t.contentPlaceholder} required rows={5} />
+                    </div>
+                    <div className="space-y-2">
+                        <Label>{t.imageLabel}</Label>
+                        {imagePreview ? (
+                            <div className="relative">
+                                <Image src={imagePreview} alt="Aperçu" width={200} height={100} className="rounded-md object-cover" />
+                                <Button variant="destructive" size="icon" className="absolute top-1 right-1 h-6 w-6" onClick={() => { setImagePreview(null); if (fileInputRef.current) fileInputRef.current.value = ''; }}>
+                                    <X className="h-4 w-4" />
+                                </Button>
+                            </div>
+                        ) : (
+                            <div className="w-full h-32 border-2 border-dashed rounded-md flex flex-col justify-center items-center cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                                <Upload className="h-8 w-8 text-muted-foreground" />
+                                <p className="text-sm text-muted-foreground">{t.imagePlaceholder}</p>
+                            </div>
+                        )}
+                        <Input id="news-image" type="file" ref={fileInputRef} onChange={handleImageChange} className="hidden" accept="image/*" />
+                    </div>
                 </div>
-                <div className="space-y-2">
-                    <Label htmlFor="news-content">{t.contentLabel}</Label>
-                    <Textarea id="news-content" value={content} onChange={(e) => setContent(e.target.value)} placeholder={t.contentPlaceholder} required rows={5} />
-                </div>
-                <div className="space-y-2">
-                    <Label>{t.imageLabel}</Label>
-                    {imagePreview ? (
-                        <div className="relative">
-                            <Image src={imagePreview} alt="Aperçu" width={200} height={100} className="rounded-md object-cover" />
-                            <Button variant="destructive" size="icon" className="absolute top-1 right-1 h-6 w-6" onClick={() => { setImagePreview(null); if (fileInputRef.current) fileInputRef.current.value = ''; }}>
-                                <X className="h-4 w-4" />
-                            </Button>
-                        </div>
-                    ) : (
-                        <div className="w-full h-32 border-2 border-dashed rounded-md flex flex-col justify-center items-center cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-                            <Upload className="h-8 w-8 text-muted-foreground" />
-                            <p className="text-sm text-muted-foreground">{t.imagePlaceholder}</p>
-                        </div>
-                    )}
-                    <Input id="news-image" type="file" ref={fileInputRef} onChange={handleImageChange} className="hidden" accept="image/*" />
-                </div>
-            </div>
-            <DialogFooter>
+            </ScrollArea>
+            <DialogFooter className="pt-4 flex-shrink-0">
                 <Button type="submit" disabled={isSubmitting}>
                     {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     {t.submitButton}
@@ -427,7 +434,7 @@ function NewsManagement({ news, onAddNews, onDeleteNews }: { news: NewsArticle[]
             </AlertDialog>
             <Card className="mt-8">
                 <CardHeader>
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-4">
                         <div>
                             <CardTitle>{t.title}</CardTitle>
                             <CardDescription>{t.description}</CardDescription>
@@ -678,10 +685,14 @@ function ArtisanDashboard() {
 
       <Card className="mt-8">
         <CardHeader>
-          <CardTitle>{t.myArtworks.title}</CardTitle>
-          <CardDescription>
-             {t.myArtworks.description(artworks.length, artworkLimit, isPremium)}
-          </CardDescription>
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <CardTitle>{t.myArtworks.title}</CardTitle>
+              <CardDescription>
+                {t.myArtworks.description(artworks.length, artworkLimit, isPremium)}
+              </CardDescription>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <Table>
