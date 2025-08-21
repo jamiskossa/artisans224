@@ -4,7 +4,7 @@
 
 import { artisans } from "@/lib/data";
 import Image from "next/image";
-import { notFound, useParams } from "next/navigation";
+import { notFound, useParams, useRouter } from "next/navigation";
 import {
   Carousel,
   CarouselContent,
@@ -14,12 +14,14 @@ import {
 } from "@/components/ui/carousel";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Music, Video, PlayCircle, Headphones, Hand, ShoppingCart } from "lucide-react";
+import { Music, Video, PlayCircle, Headphones, Hand, ShoppingCart, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import React, { useState, useRef, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { ChatbotWidget } from "@/components/chatbot-widget";
+import { auth } from "@/lib/firebase";
+import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
 
 const ThreeSixtyViewer = ({ images }: { images: string[] }) => {
   const [currentFrame, setCurrentFrame] = useState(0);
@@ -105,6 +107,30 @@ const ThreeSixtyViewer = ({ images }: { images: string[] }) => {
   );
 };
 
+const AuthWall = () => {
+  const router = useRouter();
+  return (
+    <div className="container mx-auto px-4 py-16 flex items-center justify-center min-h-[60vh]">
+        <Card className="max-w-md text-center">
+            <CardHeader>
+                <div className="flex justify-center mb-4">
+                    <ShieldAlert className="h-12 w-12 text-primary"/>
+                </div>
+                <CardTitle className="text-2xl font-headline">Accès Réservé</CardTitle>
+                <CardContent className="text-muted-foreground pt-4">
+                <p>Pour découvrir le profil complet de nos artisans et leurs créations, veuillez vous connecter ou créer un compte. C'est rapide et cela vous ouvre les portes d'un monde de créativité !</p>
+                </CardContent>
+            </CardHeader>
+            <CardContent>
+                 <Button onClick={() => router.push('/auth')} size="lg" className="w-full">
+                    Se Connecter ou S'inscrire
+                </Button>
+            </CardContent>
+        </Card>
+    </div>
+  )
+}
+
 
 export default function ArtisanPage() {
   const params = useParams();
@@ -112,8 +138,35 @@ export default function ArtisanPage() {
   const artisan = artisans.find((a) => a.id === id);
   const { toast } = useToast();
 
+  const [user, setUser] = useState<FirebaseUser | null | undefined>(undefined);
+
+  useEffect(() => {
+    if (auth) {
+        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+            setUser(currentUser);
+        });
+        return () => unsubscribe();
+    } else {
+        // Firebase not configured, simulate logged out state
+        setUser(null);
+    }
+  }, []);
+
   if (!artisan) {
     notFound();
+  }
+  
+  // Render loading state or auth wall
+  if (user === undefined) {
+      return (
+        <div className="container mx-auto px-4 py-16 flex items-center justify-center min-h-[60vh]">
+            <p>Chargement...</p>
+        </div>
+      );
+  }
+
+  if (!user) {
+    return <AuthWall />;
   }
 
   const handleAddToCart = (item: string) => {
