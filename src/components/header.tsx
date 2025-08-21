@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, User, LogOut, ShoppingCart, LayoutDashboard } from "lucide-react";
+import { Menu, User, LogOut, ShoppingCart, LayoutDashboard, MessageCircle } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -73,7 +73,7 @@ export function Header() {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   }
 
-  const isUserLoggedIn = !!user || (!auth && ['/dashboard', '/profile', '/dashboard-client'].includes(pathname));
+  const isUserLoggedIn = !!user || (!auth && ['/dashboard', '/profile', '/dashboard-client', '/messagerie'].includes(pathname));
   const dashboardUrl = isArtisan ? '/dashboard' : '/dashboard-client';
 
 
@@ -135,6 +135,11 @@ export function Header() {
                   <LayoutDashboard className="mr-2 h-4 w-4" />
                   <span>Dashboard</span>
                 </DropdownMenuItem>
+                 <DropdownMenuItem onClick={() => router.push('/messagerie')}>
+                  <MessageCircle className="mr-2 h-4 w-4" />
+                  <span>Messagerie</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout}>
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Se déconnecter</span>
