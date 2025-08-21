@@ -4,7 +4,7 @@ import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
 export type Artisan = {
   id: string;
   name: string;
-  category: 'Mode' | 'Sculpture' | 'Bijoux' | 'Musique' | 'Chaussures';
+  category: 'Mode' | 'Sculpture' | 'Bijoux' | 'Musique' | 'Chaussures' | 'Peinture';
   description: string;
   bio: string;
   image: string;

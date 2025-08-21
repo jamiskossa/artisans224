@@ -210,6 +210,20 @@ export const artisans: Artisan[] = [
       '/images/gallery/issa-kone/3.png',
       '/images/gallery/issa-kone/4.png',
     ],
+  },
+  {
+    id: 'kadiatou-diallo',
+    name: 'Kadiatou Diallo',
+    category: 'Peinture',
+    description: 'Toiles vibrantes qui capturent la lumière du Fouta-Djalon.',
+    bio: 'Kadiatou Diallo est une artiste peintre dont les œuvres vibrantes et colorées sont une célébration de la vie et des paysages du Fouta-Djalon. Utilisant des pigments naturels qu\'elle prépare elle-même, son style unique mélange abstraction et réalisme. Ses toiles sont une fenêtre ouverte sur l\'âme de la Moyenne-Guinée.',
+    image: '/images/artisans/kadiatou-diallo.png',
+    gallery: [
+      '/images/gallery/kadiatou-diallo/1.png',
+      '/images/gallery/kadiatou-diallo/2.png',
+      '/images/gallery/kadiatou-diallo/3.png',
+      '/images/gallery/kadiatou-diallo/4.png',
+    ],
   }
 ];
 

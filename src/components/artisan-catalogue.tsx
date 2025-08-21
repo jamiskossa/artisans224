@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -8,7 +9,7 @@ import { ArtisanCard } from "./artisan-card";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "./ui/skeleton";
 
-type Category = "All" | "Mode" | "Sculpture" | "Bijoux" | "Musique" | "Chaussures";
+type Category = "All" | "Mode" | "Sculpture" | "Bijoux" | "Musique" | "Chaussures" | "Peinture";
 
 export function ArtisanCatalogue() {
   const [activeTab, setActiveTab] = useState<Category>("All");
@@ -58,13 +59,14 @@ export function ArtisanCatalogue() {
           className="w-full"
           onValueChange={(value) => setActiveTab(value as Category)}
         >
-          <TabsList className="grid w-full grid-cols-3 md:w-auto md:mx-auto md:grid-cols-6 mb-8">
+          <TabsList className="grid w-full grid-cols-4 md:w-auto md:mx-auto md:grid-cols-7 mb-8">
             <TabsTrigger value="All">Tous</TabsTrigger>
             <TabsTrigger value="Mode">Mode</TabsTrigger>
             <TabsTrigger value="Sculpture">Sculpture</TabsTrigger>
             <TabsTrigger value="Bijoux">Bijoux</TabsTrigger>
             <TabsTrigger value="Musique">Musique</TabsTrigger>
             <TabsTrigger value="Chaussures">Chaussures</TabsTrigger>
+            <TabsTrigger value="Peinture">Peinture</TabsTrigger>
           </TabsList>
 
           <TabsContent value={activeTab}>
