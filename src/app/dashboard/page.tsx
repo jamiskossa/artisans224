@@ -16,6 +16,8 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { Bar, BarChart, CartesianGrid, XAxis, Pie, PieChart, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { ChartContainer, ChartTooltipContent, ChartLegend } from '@/components/ui/chart';
+import { UpgradeToPremium } from '@/components/upgrade-to-premium';
+
 
 // Simulating some initial artworks for the dashboard
 const initialArtworks = [
@@ -190,7 +192,9 @@ function ArtisanDashboard() {
 
       <DashboardStats artworks={artworks} />
 
-      <Card>
+      <UpgradeToPremium />
+
+      <Card className="mt-8">
         <CardHeader>
           <CardTitle>Mes Oeuvres</CardTitle>
           <CardDescription>Gérez et publiez vos créations ici.</CardDescription>
@@ -251,3 +255,5 @@ function ArtisanDashboard() {
 export default function DashboardPage() {
     return <ArtisanDashboard />;
 }
+
+    
