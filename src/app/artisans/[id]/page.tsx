@@ -10,8 +10,9 @@ import {
 } from "@/components/ui/carousel";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Music, Video, ShoppingCart } from "lucide-react";
+import { Music, Video, PlayCircle, Headphones } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 
 interface ArtisanPageProps {
@@ -49,16 +50,6 @@ export default function ArtisanPage({ params }: ArtisanPageProps) {
           <p className="text-lg text-muted-foreground italic mb-6">
             {artisan.description}
           </p>
-           {isMusician && (
-            <div className="flex flex-wrap gap-4 mb-6">
-                <Button>
-                    <Music className="mr-2 h-4 w-4" /> Écouter un extrait
-                </Button>
-                 <Button variant="secondary">
-                    <ShoppingCart className="mr-2 h-4 w-4" /> Acheter l'album
-                </Button>
-            </div>
-          )}
           <Separator className="my-6" />
           <h2 className="text-2xl font-headline font-semibold mb-3">À propos de l'artiste</h2>
           <p className="text-base leading-relaxed">
@@ -66,44 +57,101 @@ export default function ArtisanPage({ params }: ArtisanPageProps) {
           </p>
         </div>
       </div>
-
-      <div className="mt-12 md:mt-20">
-        <h2 className="text-3xl font-headline font-bold text-center mb-8">
-            {isMusician ? 'Discographie & Vidéos' : 'Galerie'}
-        </h2>
-        <Carousel className="w-full max-w-4xl mx-auto">
-          <CarouselContent>
-            {artisan.gallery.map((imgSrc, index) => (
-              <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
-                <div className="p-1">
-                  <div className="relative group aspect-video w-full overflow-hidden rounded-md cursor-pointer">
-                    <Image
-                      src={imgSrc}
-                      alt={`${artisan.name}'s work ${index + 1}`}
-                      data-ai-hint={isMusician ? "album cover" : "craft product"}
-                      fill
-                      className="object-cover transition-transform duration-300 group-hover:scale-110"
-                    />
-                     {isMusician && (
-                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Video className="h-12 w-12 text-white" />
-                        </div>
-                    )}
-                  </div>
-                   {isMusician && (
-                    <div className="mt-2 text-center">
-                        <p className="font-semibold">Titre de l'œuvre {index + 1}</p>
-                        <p className="text-sm text-muted-foreground">Album Name</p>
+      
+      {isMusician && (
+        <>
+          <div className="mt-12 md:mt-20">
+             <h2 className="text-3xl font-headline font-bold text-center mb-8">
+                Clips Vidéo
+            </h2>
+            <Carousel className="w-full max-w-5xl mx-auto">
+              <CarouselContent>
+                {artisan.gallery.map((videoSrc, index) => (
+                  <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/2">
+                    <div className="p-1">
+                      <Card className="overflow-hidden">
+                        <CardContent className="p-0">
+                           <div className="relative group aspect-video w-full overflow-hidden cursor-pointer">
+                                <Image
+                                src={videoSrc}
+                                alt={`Vidéo de ${artisan.name} ${index + 1}`}
+                                data-ai-hint="music video thumbnail"
+                                fill
+                                className="object-cover transition-transform duration-300 group-hover:scale-110"
+                                />
+                                <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <PlayCircle className="h-16 w-16 text-white" />
+                                </div>
+                            </div>
+                           <div className="p-4">
+                                <h3 className="font-semibold text-lg">Titre de la vidéo {index + 1}</h3>
+                                <p className="text-sm text-muted-foreground">Album Name</p>
+                            </div>
+                        </CardContent>
+                      </Card>
                     </div>
-                  )}
-                </div>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-          <CarouselPrevious className="hidden sm:flex" />
-          <CarouselNext className="hidden sm:flex" />
-        </Carousel>
-      </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="hidden sm:flex" />
+              <CarouselNext className="hidden sm:flex" />
+            </Carousel>
+          </div>
+
+          <div className="mt-12 md:mt-20">
+             <h2 className="text-3xl font-headline font-bold text-center mb-8">
+                Écouter
+            </h2>
+            <div className="max-w-3xl mx-auto space-y-4">
+                {artisan.gallery.map((track, index) => (
+                    <Card key={index} className="bg-muted/50">
+                        <CardContent className="p-4 flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                                <Headphones className="h-6 w-6 text-primary" />
+                                <div>
+                                    <p className="font-semibold">Titre de la chanson {index + 1}</p>
+                                    <p className="text-sm text-muted-foreground">{artisan.name}</p>
+                                </div>
+                            </div>
+                            <Button size="icon" variant="ghost">
+                                <PlayCircle className="h-6 w-6" />
+                            </Button>
+                        </CardContent>
+                    </Card>
+                ))}
+            </div>
+          </div>
+        </>
+      )}
+
+      {!isMusician && (
+        <div className="mt-12 md:mt-20">
+            <h2 className="text-3xl font-headline font-bold text-center mb-8">
+                Galerie
+            </h2>
+            <Carousel className="w-full max-w-4xl mx-auto">
+            <CarouselContent>
+                {artisan.gallery.map((imgSrc, index) => (
+                <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
+                    <div className="p-1">
+                    <div className="relative group aspect-square w-full overflow-hidden rounded-md cursor-pointer">
+                        <Image
+                        src={imgSrc}
+                        alt={`${artisan.name}'s work ${index + 1}`}
+                        data-ai-hint="craft product"
+                        fill
+                        className="object-cover transition-transform duration-300 group-hover:scale-110"
+                        />
+                    </div>
+                    </div>
+                </CarouselItem>
+                ))}
+            </CarouselContent>
+            <CarouselPrevious className="hidden sm:flex" />
+            <CarouselNext className="hidden sm:flex" />
+            </Carousel>
+        </div>
+      )}
     </div>
   );
 }
