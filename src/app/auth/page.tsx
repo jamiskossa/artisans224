@@ -177,7 +177,6 @@ export default function AuthPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    suppressHydrationWarning
                 />
                 </div>
                 <div className="space-y-2">
@@ -188,7 +187,6 @@ export default function AuthPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    suppressHydrationWarning
                 />
                 </div>
             </CardContent>
@@ -239,7 +237,6 @@ export default function AuthPage() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     required
-                    suppressHydrationWarning
                 />
                 </div>
                 <div className="space-y-2">
@@ -251,7 +248,6 @@ export default function AuthPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    suppressHydrationWarning
                 />
                 </div>
                 <div className="space-y-2">
@@ -262,7 +258,6 @@ export default function AuthPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    suppressHydrationWarning
                 />
                 </div>
             </CardContent>

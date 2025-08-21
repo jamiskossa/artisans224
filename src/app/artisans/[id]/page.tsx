@@ -22,6 +22,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ChatbotWidget } from "@/components/chatbot-widget";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
+import { use } from 'react';
 
 const ThreeSixtyViewer = ({ images }: { images: string[] }) => {
   const [currentFrame, setCurrentFrame] = useState(0);

@@ -37,7 +37,6 @@ export function ArtisanCatalogue() {
                 className="max-w-md"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                suppressHydrationWarning
             />
         </div>
         <Tabs
