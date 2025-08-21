@@ -22,6 +22,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 
 
 const navLinks = [
@@ -36,6 +37,7 @@ export function Header() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [user, setUser] = useState<FirebaseUser | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const { toast } = useToast();
   
@@ -46,8 +48,12 @@ export function Header() {
     if (auth) {
       const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
         setUser(currentUser);
+        setIsLoading(false);
       });
       return () => unsubscribe();
+    } else {
+        // If firebase is not configured, stop loading and assume logged out
+        setIsLoading(false);
     }
   }, []);
 
@@ -64,6 +70,8 @@ export function Header() {
             title: "Déconnexion simulée",
             description: "Vous êtes maintenant déconnecté.",
         });
+        // In demo mode, we clear the user state manually
+        setUser(null);
         router.push("/");
     }
   };
@@ -107,7 +115,9 @@ export function Header() {
                     <span className="sr-only">Panier</span>
                 </Link>
             </Button>
-          {isUserLoggedIn ? (
+          {isLoading ? (
+             <Skeleton className="h-8 w-24" />
+          ) : user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
