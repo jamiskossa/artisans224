@@ -36,8 +36,7 @@ const navLinks = [
 export function Header() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [user, setUser] = useState<FirebaseUser | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<FirebaseUser | null | undefined>(undefined);
   const router = useRouter();
   const { toast } = useToast();
   
@@ -48,12 +47,11 @@ export function Header() {
     if (auth) {
       const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
         setUser(currentUser);
-        setIsLoading(false);
       });
       return () => unsubscribe();
     } else {
         // If firebase is not configured, stop loading and assume logged out
-        setIsLoading(false);
+        setUser(null);
     }
   }, []);
 
@@ -114,7 +112,7 @@ export function Header() {
                     <span className="sr-only">Panier</span>
                 </Link>
             </Button>
-          {isLoading ? (
+          {user === undefined ? (
              <Skeleton className="h-8 w-8 rounded-full" />
           ) : user ? (
             <DropdownMenu>
