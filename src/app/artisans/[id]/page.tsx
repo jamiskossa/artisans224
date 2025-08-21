@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { artisans } from "@/lib/data";
@@ -18,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import React, { useState, useRef, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
+import { ChatbotWidget } from "@/components/chatbot-widget";
 
 const ThreeSixtyViewer = ({ images }: { images: string[] }) => {
   const [currentFrame, setCurrentFrame] = useState(0);
@@ -286,6 +288,8 @@ export default function ArtisanPage() {
             </Carousel>
         </div>
       )}
+
+      <ChatbotWidget artisanName={artisan.name} />
     </div>
   );
 }
