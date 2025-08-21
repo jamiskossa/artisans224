@@ -38,6 +38,9 @@ export function Header() {
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const router = useRouter();
   const { toast } = useToast();
+  
+  // Quick simulation of user role. In a real app, this would come from your database.
+  const isArtisan = pathname.startsWith('/dashboard') && !pathname.startsWith('/dashboard-client');
 
   useEffect(() => {
     if (auth) {
@@ -70,7 +73,9 @@ export function Header() {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   }
 
-  const isUserLoggedIn = !!user || (!auth && ['/dashboard', '/profile'].includes(pathname));
+  const isUserLoggedIn = !!user || (!auth && ['/dashboard', '/profile', '/dashboard-client'].includes(pathname));
+  const dashboardUrl = isArtisan ? '/dashboard' : '/dashboard-client';
+
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -107,7 +112,7 @@ export function Header() {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src={user?.photoURL ?? ''} alt={user?.displayName ?? 'Artisan'} />
+                    <AvatarImage src={user?.photoURL ?? ''} alt={user?.displayName ?? 'User'} />
                     <AvatarFallback>{getInitials(user?.displayName)}</AvatarFallback>
                   </Avatar>
                 </Button>
@@ -115,9 +120,9 @@ export function Header() {
               <DropdownMenuContent className="w-56" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{user?.displayName || 'Compte Artisan'}</p>
+                    <p className="text-sm font-medium leading-none">{user?.displayName || (isArtisan ? 'Compte Artisan' : 'Compte Client')}</p>
                     <p className="text-xs leading-none text-muted-foreground">
-                      {user?.email || 'demo@artisan.com'}
+                      {user?.email || (isArtisan ? 'artisan@demo.com' : 'client@demo.com')}
                     </p>
                   </div>
                 </DropdownMenuLabel>
@@ -126,7 +131,7 @@ export function Header() {
                   <User className="mr-2 h-4 w-4" />
                   <span>Profil</span>
                 </DropdownMenuItem>
-                 <DropdownMenuItem onClick={() => router.push('/dashboard')}>
+                 <DropdownMenuItem onClick={() => router.push(dashboardUrl)}>
                   <LayoutDashboard className="mr-2 h-4 w-4" />
                   <span>Dashboard</span>
                 </DropdownMenuItem>

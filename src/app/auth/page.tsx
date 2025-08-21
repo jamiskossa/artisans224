@@ -26,15 +26,27 @@ import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ShieldAlert } from "lucide-react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+
+type UserRole = "client" | "artisan";
 
 export default function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [role, setRole] = useState<UserRole>("client");
   const { toast } = useToast();
   const router = useRouter();
 
   const isFirebaseConfigured = !!auth;
+
+  const redirectToDashboard = (userRole: UserRole) => {
+    if (userRole === "artisan") {
+      router.push("/dashboard");
+    } else {
+      router.push("/dashboard-client");
+    }
+  };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,7 +63,7 @@ export default function AuthPage() {
         title: "Compte créé",
         description: "Votre inscription a été réussie.",
       });
-      router.push("/dashboard");
+      redirectToDashboard(role);
     } catch (error: any) {
       toast({
         title: "Erreur",
@@ -68,7 +80,7 @@ export default function AuthPage() {
             title: "Connexion simulée",
             description: "Redirection vers le tableau de bord de démo.",
         });
-        router.push("/dashboard");
+        redirectToDashboard(role);
         return;
     }
     try {
@@ -77,7 +89,7 @@ export default function AuthPage() {
         title: "Connecté",
         description: "Vous avez été connecté avec succès.",
       });
-      router.push("/dashboard");
+      redirectToDashboard(role);
     } catch (error: any) {
       toast({
         title: "Erreur",
@@ -93,7 +105,7 @@ export default function AuthPage() {
             title: "Connexion simulée",
             description: "Redirection vers le tableau de bord de démo.",
         });
-        router.push("/dashboard");
+        redirectToDashboard(role);
         return;
     };
     const provider = new GoogleAuthProvider();
@@ -103,13 +115,13 @@ export default function AuthPage() {
         title: "Connecté avec Google",
         description: "Vous avez été connecté avec succès.",
       });
-      router.push("/dashboard");
+      redirectToDashboard(role);
     } catch (error: any) {
-      toast({
-        title: "Erreur",
-        description: error.message,
-        variant: "destructive",
-      });
+        toast({
+            title: "Erreur",
+            description: error.message,
+            variant: "destructive",
+        });
     }
   };
 
@@ -139,6 +151,19 @@ export default function AuthPage() {
                 </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+                 <div className="space-y-2">
+                    <Label>Vous êtes ?</Label>
+                    <RadioGroup defaultValue="client" onValueChange={(value: UserRole) => setRole(value)} className="flex gap-4">
+                        <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="client" id="r1-login" />
+                            <Label htmlFor="r1-login">Client</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="artisan" id="r2-login" />
+                            <Label htmlFor="r2-login">Artisan / Créateur</Label>
+                        </div>
+                    </RadioGroup>
+                </div>
                 <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -148,6 +173,7 @@ export default function AuthPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
+                    suppressHydrationWarning
                 />
                 </div>
                 <div className="space-y-2">
@@ -158,6 +184,7 @@ export default function AuthPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
+                    suppressHydrationWarning
                 />
                 </div>
             </CardContent>
@@ -188,6 +215,19 @@ export default function AuthPage() {
             </CardHeader>
             <CardContent className="space-y-4">
                 <div className="space-y-2">
+                    <Label>Vous êtes ?</Label>
+                    <RadioGroup defaultValue="client" onValueChange={(value: UserRole) => setRole(value)} className="flex gap-4">
+                        <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="client" id="r1-signup" />
+                            <Label htmlFor="r1-signup">Client</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="artisan" id="r2-signup" />
+                            <Label htmlFor="r2-signup">Artisan / Créateur</Label>
+                        </div>
+                    </RadioGroup>
+                </div>
+                <div className="space-y-2">
                 <Label htmlFor="name">Nom</Label>
                 <Input
                     id="name"
@@ -195,6 +235,7 @@ export default function AuthPage() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     required
+                    suppressHydrationWarning
                 />
                 </div>
                 <div className="space-y-2">
@@ -206,6 +247,7 @@ export default function AuthPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
+                    suppressHydrationWarning
                 />
                 </div>
                 <div className="space-y-2">
@@ -216,6 +258,7 @@ export default function AuthPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
+                    suppressHydrationWarning
                 />
                 </div>
             </CardContent>
@@ -248,5 +291,3 @@ export default function AuthPage() {
     </div>
   );
 }
-
-    

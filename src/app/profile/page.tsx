@@ -8,11 +8,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 export default function ProfilePage() {
   const { toast } = useToast();
   const router = useRouter();
+  const pathname = usePathname();
+
+  // Basic role simulation based on referrer or state (a real app would use a session/DB)
+  const isArtisan = typeof window !== 'undefined' && (document.referrer.includes('/dashboard') && !document.referrer.includes('client'));
+  const dashboardUrl = isArtisan ? '/dashboard' : '/dashboard-client';
 
   const handleSaveChanges = () => {
     toast({
@@ -72,7 +77,7 @@ export default function ProfilePage() {
           <Separator />
 
           <div className="space-y-4">
-             <Button variant="outline" className="w-full" onClick={() => router.push('/dashboard')}>
+             <Button variant="outline" className="w-full" onClick={() => router.push(dashboardUrl)}>
                 Aller au tableau de bord
             </Button>
             <Button variant="outline" className="w-full" onClick={handleLogout}>
