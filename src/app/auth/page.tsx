@@ -38,14 +38,20 @@ export default function AuthPage() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isFirebaseConfigured) return;
+    if (!isFirebaseConfigured) {
+        toast({
+            title: "Mode Démo",
+            description: "Fonctionnalité non disponible sans configuration Firebase.",
+        });
+        return;
+    };
     try {
       await createUserWithEmailAndPassword(auth, email, password);
       toast({
         title: "Compte créé",
         description: "Votre inscription a été réussie.",
       });
-      router.push("/");
+      router.push("/dashboard");
     } catch (error: any) {
       toast({
         title: "Erreur",
@@ -57,14 +63,21 @@ export default function AuthPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isFirebaseConfigured) return;
+     if (!isFirebaseConfigured) {
+        toast({
+            title: "Connexion simulée",
+            description: "Redirection vers le tableau de bord de démo.",
+        });
+        router.push("/dashboard");
+        return;
+    }
     try {
       await signInWithEmailAndPassword(auth, email, password);
       toast({
         title: "Connecté",
         description: "Vous avez été connecté avec succès.",
       });
-      router.push("/");
+      router.push("/dashboard");
     } catch (error: any) {
       toast({
         title: "Erreur",
@@ -75,7 +88,14 @@ export default function AuthPage() {
   };
 
   const handleGoogleSignIn = async () => {
-    if (!isFirebaseConfigured) return;
+    if (!isFirebaseConfigured) {
+        toast({
+            title: "Connexion simulée",
+            description: "Redirection vers le tableau de bord de démo.",
+        });
+        router.push("/dashboard");
+        return;
+    };
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
@@ -83,7 +103,7 @@ export default function AuthPage() {
         title: "Connecté avec Google",
         description: "Vous avez été connecté avec succès.",
       });
-      router.push("/");
+      router.push("/dashboard");
     } catch (error: any) {
       toast({
         title: "Erreur",
@@ -105,137 +125,131 @@ export default function AuthPage() {
                 <ShieldAlert className="h-4 w-4" />
                 <AlertTitle>Firebase non configuré</AlertTitle>
                 <AlertDescription>
-                    Veuillez ajouter vos identifiants Firebase au fichier .env.local pour activer l'authentification.
+                    L'authentification est désactivée. La connexion simulera une redirection vers le tableau de bord.
                 </AlertDescription>
             </Alert>
         )}
         <TabsContent value="login">
           <form onSubmit={handleLogin}>
-            <fieldset disabled={!isFirebaseConfigured}>
-                <Card>
-                <CardHeader>
-                    <CardTitle>Connexion</CardTitle>
-                    <CardDescription>
-                    Accédez à votre compte pour continuer.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                        id="email"
-                        type="email"
-                        placeholder="m@example.com"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        suppressHydrationWarning
-                    />
-                    </div>
-                    <div className="space-y-2">
-                    <Label htmlFor="password">Mot de passe</Label>
-                    <Input
-                        id="password"
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        suppressHydrationWarning
-                    />
-                    </div>
-                </CardContent>
-                <CardFooter className="flex flex-col gap-4">
-                    <Button type="submit" className="w-full">
-                    Se connecter
-                    </Button>
-                    <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full"
-                    onClick={handleGoogleSignIn}
-                    >
-                    Se connecter avec Google
-                    </Button>
-                </CardFooter>
-                </Card>
-            </fieldset>
+            <Card>
+            <CardHeader>
+                <CardTitle>Connexion</CardTitle>
+                <CardDescription>
+                Accédez à votre compte pour continuer.
+                </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                    id="email"
+                    type="email"
+                    placeholder="m@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    suppressHydrationWarning
+                />
+                </div>
+                <div className="space-y-2">
+                <Label htmlFor="password">Mot de passe</Label>
+                <Input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    suppressHydrationWarning
+                />
+                </div>
+            </CardContent>
+            <CardFooter className="flex flex-col gap-4">
+                <Button type="submit" className="w-full">
+                Se connecter
+                </Button>
+                <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={handleGoogleSignIn}
+                >
+                Se connecter avec Google
+                </Button>
+            </CardFooter>
+            </Card>
           </form>
         </TabsContent>
         <TabsContent value="signup">
           <form onSubmit={handleSignUp}>
-            <fieldset disabled={!isFirebaseConfigured}>
-                <Card>
-                <CardHeader>
-                    <CardTitle>Inscription</CardTitle>
-                    <CardDescription>
-                    Créez un nouveau compte pour commencer.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                    <Label htmlFor="name">Nom</Label>
-                    <Input
-                        id="name"
-                        placeholder="Yattara Ousmane"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        required
-                        suppressHydrationWarning
-                    />
-                    </div>
-                    <div className="space-y-2">
-                    <Label htmlFor="email-signup">Email</Label>
-                    <Input
-                        id="email-signup"
-                        type="email"
-                        placeholder="m@example.com"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        suppressHydrationWarning
-                    />
-                    </div>
-                    <div className="space-y-2">
-                    <Label htmlFor="password-signup">Mot de passe</Label>
-                    <Input
-                        id="password-signup"
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        suppressHydrationWarning
-                    />
-                    </div>
-                </CardContent>
-                <CardFooter className="flex flex-col gap-4">
-                    <Button type="submit" className="w-full">
-                    S'inscrire
-                    </Button>
-                    <p className="px-8 text-center text-sm text-muted-foreground">
-                    En cliquant sur continuer, vous acceptez nos{" "}
-                    <Link
-                        href="/terms"
-                        className="underline underline-offset-4 hover:text-primary"
-                    >
-                        Conditions d'utilisation
-                    </Link>{" "}
-                    et notre{" "}
-                    <Link
-                        href="/privacy"
-                        className="underline underline-offset-4 hover:text-primary"
-                    >
-                        Politique de confidentialité
-                    </Link>
-                    .
-                    </p>
-                </CardFooter>
-                </Card>
-            </fieldset>
+            <Card>
+            <CardHeader>
+                <CardTitle>Inscription</CardTitle>
+                <CardDescription>
+                Créez un nouveau compte pour commencer.
+                </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <div className="space-y-2">
+                <Label htmlFor="name">Nom</Label>
+                <Input
+                    id="name"
+                    placeholder="Yattara Ousmane"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                    suppressHydrationWarning
+                />
+                </div>
+                <div className="space-y-2">
+                <Label htmlFor="email-signup">Email</Label>
+                <Input
+                    id="email-signup"
+                    type="email"
+                    placeholder="m@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    suppressHydrationWarning
+                />
+                </div>
+                <div className="space-y-2">
+                <Label htmlFor="password-signup">Mot de passe</Label>
+                <Input
+                    id="password-signup"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    suppressHydrationWarning
+                />
+                </div>
+            </CardContent>
+            <CardFooter className="flex flex-col gap-4">
+                <Button type="submit" className="w-full">
+                S'inscrire
+                </Button>
+                <p className="px-8 text-center text-sm text-muted-foreground">
+                En cliquant sur continuer, vous acceptez nos{" "}
+                <Link
+                    href="/terms"
+                    className="underline underline-offset-4 hover:text-primary"
+                >
+                    Conditions d'utilisation
+                </Link>{" "}
+                et notre{" "}
+                <Link
+                    href="/privacy"
+                    className="underline underline-offset-4 hover:text-primary"
+                >
+                    Politique de confidentialité
+                </Link>
+                .
+                </p>
+            </CardFooter>
+            </Card>
           </form>
         </TabsContent>
       </Tabs>
     </div>
   );
 }
-
-    
