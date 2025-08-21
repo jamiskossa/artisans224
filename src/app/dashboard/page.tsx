@@ -33,9 +33,9 @@ import { Textarea } from '@/components/ui/textarea';
 
 // Simulating some initial artworks for the dashboard
 const initialArtworks = [
-  { id: 1, title: 'Sculpture en Bronze "L\'envol"', image: '/images/gallery/marc-dupont/1.png', price: '450', status: 'Publiée', views: 1200, sales: 5, description: 'Une sculpture magnifique.' },
-  { id: 2, title: 'Chanson "Conakry Blues"', image: '/images/gallery/amina-traore/1.png', price: '1.99', status: 'Publiée', views: 8500, sales: 1500, description: 'Un morceau soul.' },
-  { id: 3, title: 'Chaussures en cuir "Nomade"', image: '/images/gallery/issa-kone/1.png', price: '120', status: 'Brouillon', views: 350, sales: 12, description: 'Chaussures faites main.' },
+  { id: 1, title: 'Sculpture en Bronze "L\'envol"', image: '/images/gallery/mamadou-aliou-barry/1.png', price: '450', status: 'Publiée', views: 1200, sales: 5, description: 'Une sculpture magnifique.' },
+  { id: 2, title: 'Chanson "Conakry Blues"', image: '/images/gallery/amina-kourouma/1.png', price: '1.99', status: 'Publiée', views: 8500, sales: 1500, description: 'Un morceau soul.' },
+  { id: 3, title: 'Chaussures en cuir "Nomade"', image: '/images/gallery/issa-conde/1.png', price: '120', status: 'Brouillon', views: 350, sales: 12, description: 'Chaussures faites main.' },
 ];
 
 const salesData = [
@@ -296,7 +296,7 @@ function AddArtworkForm({ onArtworkAdd, onOpenChange }: { onArtworkAdd: (artwork
 
 function ArtisanDashboard() {
   const [artworks, setArtworks] = useState<Artwork[]>(initialArtworks);
-  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isAddArtworkOpen, setIsAddArtworkOpen] = useState(false);
   const { toast } = useToast();
   
   // For now, we simulate if the user is premium or not. In a real app, this would come from the user's data.
@@ -353,7 +353,7 @@ function ArtisanDashboard() {
     <div className="container mx-auto py-12">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-headline font-bold">Tableau de Bord</h1>
-        <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+        <Dialog open={isAddArtworkOpen} onOpenChange={setIsAddArtworkOpen}>
             <DialogTrigger asChild>
                  <Button disabled={!isPremium && artworks.length >= artworkLimit}>
                     <PlusCircle className="mr-2 h-4 w-4" /> Ajouter une oeuvre
@@ -366,7 +366,7 @@ function ArtisanDashboard() {
                     Remplissez les détails de votre création. Cliquez sur ajouter lorsque vous avez terminé.
                 </DialogDescription>
                 </DialogHeader>
-                <AddArtworkForm onArtworkAdd={handleAddArtwork} onOpenChange={setIsFormOpen} />
+                <AddArtworkForm onArtworkAdd={handleAddArtwork} onOpenChange={setIsAddArtworkOpen} />
             </DialogContent>
         </Dialog>
       </div>
@@ -402,7 +402,7 @@ function ArtisanDashboard() {
               {artworks.map((artwork) => (
                 <TableRow key={artwork.id}>
                   <TableCell>
-                    <Image src={artwork.image} alt={artwork.title} width={40} height={40} className="rounded-md object-cover" />
+                    <Image src={artwork.image} alt={artwork.title} width={40} height={40} className="rounded-md object-cover" data-ai-hint="artwork image"/>
                   </TableCell>
                   <TableCell className="font-medium">{artwork.title}</TableCell>
                   <TableCell>{artwork.price} €</TableCell>
@@ -441,3 +441,5 @@ function ArtisanDashboard() {
 export default function DashboardPage() {
     return <ArtisanDashboard />;
 }
+
+    
