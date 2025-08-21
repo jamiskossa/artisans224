@@ -19,7 +19,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import React, { useState, useRef, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
-import { ChatbotWidget } from "@/components/chatbot-widget";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
 
@@ -341,8 +340,6 @@ export default function ArtisanPage() {
             </Carousel>
         </div>
       )}
-
-      <ChatbotWidget artisanName={artisan.name} />
     </div>
   );
 }

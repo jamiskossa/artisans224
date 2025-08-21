@@ -14,7 +14,7 @@ type Message = {
   sender: "user" | "bot";
 };
 
-export function ChatbotWidget({ artisanName }: { artisanName: string }) {
+export function ChatbotWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
@@ -22,15 +22,15 @@ export function ChatbotWidget({ artisanName }: { artisanName: string }) {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && messages.length === 0) {
       setMessages([
         {
-          text: `Bonjour ! Je suis l'assistant virtuel de ${artisanName}. Comment puis-je vous aider aujourd'hui ?`,
+          text: `Bonjour ! Je suis l'assistant virtuel de la plateforme Artisans & Créateurs. Comment puis-je vous aider ?`,
           sender: "bot",
         },
       ]);
     }
-  }, [isOpen, artisanName]);
+  }, [isOpen, messages]);
 
   useEffect(() => {
     // Auto-scroll to the bottom
@@ -54,7 +54,7 @@ export function ChatbotWidget({ artisanName }: { artisanName: string }) {
     // Simulate bot response
     setTimeout(() => {
       const botResponse: Message = {
-        text: `Ceci est une réponse simulée à votre question : "${userMessage.text}". Dans une version future, une IA fournira des réponses détaillées sur les produits de ${artisanName}.`,
+        text: `Ceci est une réponse simulée à votre question : "${userMessage.text}". Dans une version future, une IA fournira des réponses détaillées sur les produits et les artisans.`,
         sender: "bot",
       };
       setMessages((prev) => [...prev, botResponse]);
@@ -84,7 +84,7 @@ export function ChatbotWidget({ artisanName }: { artisanName: string }) {
                     <Bot className="h-6 w-6" />
                 </div>
                 <div>
-                    <CardTitle className="text-lg">Assistant Vendeur</CardTitle>
+                    <CardTitle className="text-lg">Assistant Virtuel</CardTitle>
                     <p className="text-xs text-muted-foreground">En ligne</p>
                 </div>
               </div>
