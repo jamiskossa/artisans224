@@ -24,7 +24,7 @@ export function ArtisanCard({ artisan }: ArtisanCardProps) {
           </div>
         </CardHeader>
         <CardContent className="p-4">
-          <CardTitle as="h3" className="text-xl font-headline mb-1">{artisan.name}</CardTitle>
+          <CardTitle className="text-xl font-headline mb-1">{artisan.name}</CardTitle>
           <p className="text-sm text-muted-foreground">{artisan.description}</p>
         </CardContent>
         <CardFooter className="p-4 pt-0">
