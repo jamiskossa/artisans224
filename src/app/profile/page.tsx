@@ -8,37 +8,81 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { useRouter, usePathname } from "next/navigation";
-import { useRef, useState } from "react";
-import { Camera } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useRef, useState, useEffect } from "react";
+import { Camera, Loader2 } from "lucide-react";
+import { auth } from "@/lib/firebase";
+import { onAuthStateChanged, updateProfile, User as FirebaseUser, signOut } from "firebase/auth";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ProfilePage() {
   const { toast } = useToast();
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>("/images/profile/user-avatar.png");
   
-  // Basic role simulation based on referrer or state (a real app would use a session/DB)
-  const isArtisan = typeof window !== 'undefined' && (document.referrer.includes('/dashboard') && !document.referrer.includes('client'));
+  const [user, setUser] = useState<FirebaseUser | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const [displayName, setDisplayName] = useState('');
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+        setDisplayName(currentUser.displayName || '');
+        setImagePreview(currentUser.photoURL);
+      } else {
+        router.push('/auth');
+      }
+      setIsLoading(false);
+    });
+    return () => unsubscribe();
+  }, [router]);
+  
+  const isArtisan = user && !user.email?.includes('client');
   const dashboardUrl = isArtisan ? '/dashboard' : '/dashboard-client';
 
-  const handleSaveChanges = () => {
-    toast({
-      title: "Profil mis à jour",
-      description: "Vos informations ont été enregistrées avec succès.",
-    });
+  const handleSaveChanges = async () => {
+    if (!user) return;
+
+    setIsSaving(true);
+    try {
+      await updateProfile(user, {
+        displayName: displayName,
+        // In a real app, you would upload the new image to Firebase Storage 
+        // and get the URL before updating the profile.
+        // photoURL: newPhotoURL, 
+      });
+
+      toast({
+        title: "Profil mis à jour",
+        description: "Vos informations ont été enregistrées avec succès.",
+      });
+    } catch (error: any) {
+       toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la mise à jour.",
+        variant: 'destructive'
+      });
+    } finally {
+        setIsSaving(false);
+    }
   };
 
-  const handleLogout = () => {
-     toast({
-        title: "Déconnexion simulée",
+  const handleLogout = async () => {
+    await signOut(auth);
+    toast({
+        title: "Déconnexion réussie",
         description: "Vous êtes maintenant déconnecté.",
     });
     router.push("/");
   };
   
   const handleDeleteAccount = () => {
-    if(confirm("Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.")){
+    if(confirm("Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.")) {
+        // In a real app, this would call `user.delete()` and handle re-authentication if needed.
         toast({
             title: "Compte supprimé",
             description: "Votre compte a été supprimé.",
@@ -58,6 +102,36 @@ export default function ProfilePage() {
         reader.readAsDataURL(file);
     }
   };
+  
+  const getInitials = (name: string | null | undefined) => {
+    if (!name) return "?";
+    return name.split(' ').map(n => n[0]).join('').toUpperCase();
+  }
+  
+  if (isLoading) {
+    return (
+        <div className="container mx-auto px-4 py-16 max-w-2xl">
+            <Card>
+                <CardHeader className="text-center">
+                    <Skeleton className="w-24 h-24 rounded-full mx-auto mb-4" />
+                    <Skeleton className="h-8 w-48 mx-auto" />
+                    <Skeleton className="h-4 w-64 mx-auto mt-2" />
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    <div className="space-y-2">
+                        <Skeleton className="h-4 w-20" />
+                        <Skeleton className="h-10 w-full" />
+                    </div>
+                     <div className="space-y-2">
+                        <Skeleton className="h-4 w-20" />
+                        <Skeleton className="h-10 w-full" />
+                    </div>
+                    <Skeleton className="h-10 w-full" />
+                </CardContent>
+            </Card>
+        </div>
+    )
+  }
 
   return (
     <div className="container mx-auto px-4 py-16 max-w-2xl">
@@ -65,8 +139,8 @@ export default function ProfilePage() {
         <CardHeader className="text-center">
             <div className="relative w-24 h-24 mx-auto mb-4 group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
                 <Avatar className="w-full h-full text-4xl">
-                    <AvatarImage src={imagePreview ?? undefined} alt="Yattara Ousmane" />
-                    <AvatarFallback>YO</AvatarFallback>
+                    <AvatarImage src={imagePreview ?? undefined} alt={user?.displayName ?? ""} />
+                    <AvatarFallback>{getInitials(user?.displayName)}</AvatarFallback>
                 </Avatar>
                 <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                     <Camera className="h-8 w-8 text-white" />
@@ -83,25 +157,22 @@ export default function ProfilePage() {
           <CardDescription>Gérez les informations de votre compte.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                 <div className="space-y-2">
-                    <Label htmlFor="firstname">Prénom</Label>
-                    <Input id="firstname" defaultValue="Yattara" />
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="lastname">Nom de famille</Label>
-                    <Input id="lastname" defaultValue="Ousmane (Démo)" />
-                </div>
+            <div className="space-y-2">
+                <Label htmlFor="displayName">Nom & Prénom</Label>
+                <Input id="displayName" value={displayName} onChange={e => setDisplayName(e.target.value)} />
             </div>
           <div className="space-y-2">
             <Label htmlFor="email">Adresse e-mail</Label>
-            <Input id="email" type="email" defaultValue="demo@artisan.com" readOnly />
+            <Input id="email" type="email" value={user?.email ?? ''} readOnly disabled />
           </div>
            <div className="space-y-2">
             <Label htmlFor="password">Nouveau mot de passe</Label>
             <Input id="password" type="password" placeholder="Laisser vide pour ne pas changer" />
           </div>
-          <Button className="w-full" onClick={handleSaveChanges}>Enregistrer les modifications</Button>
+          <Button className="w-full" onClick={handleSaveChanges} disabled={isSaving}>
+            {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Enregistrer les modifications
+          </Button>
 
           <Separator />
 
