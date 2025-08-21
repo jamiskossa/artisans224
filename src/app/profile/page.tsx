@@ -49,11 +49,12 @@ export default function ProfilePage() {
 
     setIsSaving(true);
     try {
+      // The photoURL can't be a data URI. It must be a public URL.
+      // In a real app, you would upload the file to a service like Firebase Storage
+      // and get a downloadable URL to use here.
+      // For this demo, we will only update the display name.
       await updateProfile(user, {
         displayName: displayName,
-        // In a real app, you would upload the new image to Firebase Storage 
-        // and get the URL before updating the profile. For this demo, we'll use the local preview URL.
-        photoURL: imagePreview, 
       });
 
       toast({
@@ -141,7 +142,7 @@ export default function ProfilePage() {
         <CardHeader className="text-center">
             <div className="relative w-24 h-24 mx-auto mb-4 group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
                 <Avatar className="w-full h-full text-4xl">
-                    <AvatarImage src={imagePreview ?? undefined} alt={user?.displayName ?? ""} />
+                    <AvatarImage src={imagePreview ?? undefined} alt={user?.displayName ?? ""} data-ai-hint="profile photo" />
                     <AvatarFallback>{getInitials(user?.displayName)}</AvatarFallback>
                 </Avatar>
                 <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -160,7 +161,7 @@ export default function ProfilePage() {
         </CardHeader>
         <CardContent className="space-y-6">
             <div className="space-y-2">
-                <Label htmlFor="displayName">Nom & Prénom</Label>
+                <Label htmlFor="displayName">Prénom & Nom</Label>
                 <Input id="displayName" value={displayName} onChange={e => setDisplayName(e.target.value)} />
             </div>
           <div className="space-y-2">
