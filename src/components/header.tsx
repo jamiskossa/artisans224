@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X } from "lucide-react";
+import { Menu } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -10,9 +10,9 @@ import { cn } from "@/lib/utils";
 import { Icons } from "./icons";
 
 const navLinks = [
-  { href: "/", label: "Home" },
-  { href: "/news", label: "News" },
-  { href: "/about", label: "About" },
+  { href: "/", label: "Accueil" },
+  { href: "/catalogue", label: "Catalogue" },
+  { href: "/about", label: "À propos" },
   { href: "/contact", label: "Contact" },
 ];
 
@@ -26,7 +26,7 @@ export function Header() {
         <Link href="/" className="mr-6 flex items-center space-x-2">
           <Icons.logo className="h-6 w-6" />
           <span className="font-bold font-headline sm:inline-block">
-            Artisan's Compass
+            Artisans & Créateurs
           </span>
         </Link>
         <nav className="hidden gap-6 md:flex">
@@ -44,6 +44,9 @@ export function Header() {
           ))}
         </nav>
         <div className="flex flex-1 items-center justify-end gap-2">
+           <Button asChild>
+                <Link href="/auth">Mon Compte</Link>
+           </Button>
           <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" className="md:hidden">
@@ -55,7 +58,7 @@ export function Header() {
               <nav className="flex flex-col gap-4">
                 <Link href="/" className="mb-4 flex items-center gap-2 text-lg font-medium">
                   <Icons.logo className="h-6 w-6" />
-                  <span>Artisan's Compass</span>
+                  <span>Artisans & Créateurs</span>
                 </Link>
                 {navLinks.map((link) => (
                   <Link

@@ -6,8 +6,8 @@ import { Footer } from '@/components/footer';
 import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: "Artisan's Compass",
-  description: 'Discover the finest artisans and their unique crafts.',
+  title: "Catalogue d'Artisans et Créateurs",
+  description: 'Découvrez des artisans et créateurs uniques.',
 };
 
 export default function RootLayout({
