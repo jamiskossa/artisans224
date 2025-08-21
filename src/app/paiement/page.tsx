@@ -4,7 +4,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { CreditCard, ShoppingCart } from "lucide-react";
+import { CreditCard, ShoppingCart, Smartphone } from "lucide-react";
 import Image from "next/image";
 
 // Dummy data for cart items
@@ -79,11 +79,18 @@ export default function PaiementPage() {
                             <Button className="w-full" size="lg">
                                 <CreditCard className="mr-2 h-5 w-5" /> Procéder au paiement
                             </Button>
-                            <div className="flex items-center justify-center gap-4 w-full">
-                                <Image src="https://placehold.co/40x25.png" data-ai-hint="orange money logo" alt="Orange Money" width={40} height={25} />
-                                <Image src="https://placehold.co/40x25.png" data-ai-hint="mtn logo" alt="MTN" width={40} height={25} />
-                                <Image src="https://placehold.co/40x25.png" data-ai-hint="paypal logo" alt="Paypal" width={40} height={25} />
-                                <Image src="https://placehold.co/40x25.png" data-ai-hint="visa mastercard" alt="Credit Card" width={40} height={25} />
+                            <div className="text-center w-full">
+                                <p className="text-sm font-medium mb-2">Paiements mobiles acceptés</p>
+                                <div className="flex items-center justify-center gap-4">
+                                    <div className="flex items-center gap-2">
+                                        <Image src="https://placehold.co/40x25.png" data-ai-hint="orange money logo" alt="Orange Money" width={40} height={25} />
+                                        <span className="text-xs font-semibold">Orange Money</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                         <Smartphone className="h-5 w-5" />
+                                        <span className="text-xs font-semibold">Kulu</span>
+                                    </div>
+                                </div>
                             </div>
                         </CardFooter>
                     </Card>
