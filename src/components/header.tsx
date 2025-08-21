@@ -81,7 +81,6 @@ export function Header() {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   }
 
-  const isUserLoggedIn = !!user || (!auth && ['/dashboard', '/profile', '/dashboard-client', '/messagerie'].includes(pathname));
   const dashboardUrl = isArtisan ? '/dashboard' : '/dashboard-client';
 
 
@@ -116,7 +115,7 @@ export function Header() {
                 </Link>
             </Button>
           {isLoading ? (
-             <Skeleton className="h-8 w-24" />
+             <Skeleton className="h-8 w-8 rounded-full" />
           ) : user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
