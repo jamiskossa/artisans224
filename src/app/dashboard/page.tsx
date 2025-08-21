@@ -65,7 +65,7 @@ function DashboardStats({ artworks }: { artworks: Artwork[] }) {
                         <Eye className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{totalViews.toLocaleString()}</div>
+                        <div className="text-2xl font-bold">{totalViews.toLocaleString('fr-FR')}</div>
                         <p className="text-xs text-muted-foreground">+15% depuis la semaine dernière</p>
                     </CardContent>
                 </Card>
@@ -202,7 +202,7 @@ function ArtisanDashboard() {
                   </TableCell>
                   <TableCell className="font-medium">{artwork.title}</TableCell>
                   <TableCell>{artwork.price}</TableCell>
-                   <TableCell>{artwork.views.toLocaleString()}</TableCell>
+                   <TableCell>{artwork.views.toLocaleString('fr-FR')}</TableCell>
                   <TableCell>
                     <span className={`px-2 py-1 text-xs rounded-full ${artwork.status === 'Publiée' ? 'bg-green-500/20 text-green-300' : 'bg-yellow-500/20 text-yellow-300'}`}>
                       {artwork.status}
@@ -236,3 +236,5 @@ function ArtisanDashboard() {
 export default function DashboardPage() {
     return <ArtisanDashboard />;
 }
+
+    
