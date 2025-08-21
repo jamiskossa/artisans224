@@ -105,31 +105,11 @@ export default function AuthPage() {
   };
 
   const handleGoogleSignIn = async () => {
-    if (!isFirebaseConfigured) {
-        toast({
-            title: "Connexion simulée",
-            description: "Redirection vers le tableau de bord de démo.",
-        });
-        redirectToDashboard(role);
-        return;
-    };
-    const provider = new GoogleAuthProvider();
-    try {
-      await signInWithPopup(auth, provider);
-      toast({
-        title: "Connecté avec Google",
-        description: "Vous avez été connecté avec succès.",
-      });
-      redirectToDashboard(role);
-    } catch (error: any) {
-        // Fallback to simulated sign-in on error during development
-        console.error("Google Sign-In Error:", error);
-        toast({
-            title: "Connexion Google simulée",
-            description: "La configuration Firebase pour Google Sign-In est peut-être manquante. Redirection vers le tableau de bord de démo.",
-        });
-        redirectToDashboard(role);
-    }
+    toast({
+        title: "Connexion Google simulée",
+        description: "Pour activer la vraie connexion Google, veuillez autoriser ce domaine dans votre console Firebase.",
+    });
+    redirectToDashboard(role);
   };
   
   const onRoleChange = (newRole: UserRole) => {
