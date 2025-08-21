@@ -93,7 +93,7 @@ export function ArtisanReviews({ artisan }: { artisan: Artisan }) {
   return (
     <div id="reviews" className="max-w-4xl mx-auto">
         <div className="text-center mb-10">
-          <h2 className="text-3xl md:text-4xl font-headline font-bold">Avis</h2>
+          <h2 className="text-3xl md:text-4xl font-headline font-bold">Avis Clients</h2>
           <p className="text-lg text-muted-foreground mt-2">
             Ce que les clients disent de {artisan.name}.
           </p>
