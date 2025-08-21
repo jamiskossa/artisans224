@@ -1,6 +1,8 @@
 import { db } from './firebase';
 import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
 
+export const categories = ['Mode', 'Sculpture', 'Bijoux', 'Musique', 'Chaussures', 'Peinture'] as const;
+
 export type Review = {
     id: string;
     author: string;
@@ -14,7 +16,7 @@ export type Review = {
 export type Artisan = {
   id: string;
   name: string;
-  category: 'Mode' | 'Sculpture' | 'Bijoux' | 'Musique' | 'Chaussures' | 'Peinture';
+  category: (typeof categories)[number];
   description: string;
   bio: string;
   image: string;
@@ -71,3 +73,5 @@ export async function getNews(): Promise<NewsArticle[]> {
     return [];
   }
 }
+
+    

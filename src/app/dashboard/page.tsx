@@ -44,6 +44,10 @@ import { db, auth } from '@/lib/firebase';
 import { collection, onSnapshot, addDoc, doc, deleteDoc, updateDoc, query, where } from 'firebase/firestore';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { format } from 'date-fns';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { categories } from '@/lib/data';
+import { translations } from '@/lib/translations';
+
 
 const salesData = [
   { month: 'Jan', sales: 1200 },
@@ -68,63 +72,63 @@ const totalProjectedRevenue = projectionData.reduce((acc, item) => acc + item.va
 
 
 function DashboardStats({ artworks }: { artworks: Artwork[] }) {
-    const totalSales = 4550;
+    const totalSales = artworks.reduce((sum, art) => sum + art.sales * parseFloat(art.price), 0);
     const totalEarnings = totalSales * (1 - COMMISSION_RATE);
     const totalViews = artworks.reduce((sum, art) => sum + art.views, 0);
     const totalArtworks = artworks.length;
 
-    const viewsData = artworks.map(art => ({ name: art.title, value: art.views }));
+    const viewsData = artworks.map(art => ({ name: art.title, value: art.views })).filter(d => d.value > 0);
 
     return (
         <div className="mb-8">
-            <h2 className="text-2xl font-bold mb-4">Statistiques</h2>
+            <h2 className="text-2xl font-bold mb-4">{translations.fr.dashboard.stats.title}</h2>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Ventes Totales (Brut)</CardTitle>
+                        <CardTitle className="text-sm font-medium">{translations.fr.dashboard.stats.totalSales}</CardTitle>
                         <DollarSign className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{totalSales.toFixed(2)} €</div>
-                        <p className="text-xs text-muted-foreground">+20.1% depuis le mois dernier</p>
+                        <p className="text-xs text-muted-foreground">{translations.fr.dashboard.stats.totalSalesDesc}</p>
                     </CardContent>
                 </Card>
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Vos Gains (Après Commission)</CardTitle>
+                        <CardTitle className="text-sm font-medium">{translations.fr.dashboard.stats.earnings}</CardTitle>
                         <TrendingUp className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{totalEarnings.toFixed(2)} €</div>
-                        <p className="text-xs text-muted-foreground">Commission de la plateforme: {(COMMISSION_RATE * 100).toFixed(0)}%</p>
+                        <p className="text-xs text-muted-foreground">{translations.fr.dashboard.stats.earningsDesc(COMMISSION_RATE)}</p>
                     </CardContent>
                 </Card>
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Vues Totales</CardTitle>
+                        <CardTitle className="text-sm font-medium">{translations.fr.dashboard.stats.totalViews}</CardTitle>
                         <Eye className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{totalViews.toLocaleString('fr-FR')}</div>
-                        <p className="text-xs text-muted-foreground">+15% depuis la semaine dernière</p>
+                        <p className="text-xs text-muted-foreground">{translations.fr.dashboard.stats.totalViewsDesc}</p>
                     </CardContent>
                 </Card>
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Oeuvres Actives</CardTitle>
+                        <CardTitle className="text-sm font-medium">{translations.fr.dashboard.stats.activeArtworks}</CardTitle>
                         <Package className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">+{totalArtworks}</div>
-                        <p className="text-xs text-muted-foreground">{artworks.filter(a => a.status === 'Publiée').length} publiées</p>
+                        <p className="text-xs text-muted-foreground">{translations.fr.dashboard.stats.activeArtworksDesc(artworks.filter(a => a.status === 'Publiée').length)}</p>
                     </CardContent>
                 </Card>
             </div>
             <div className="grid gap-4 md:grid-cols-2 mt-8">
                 <Card>
                     <CardHeader>
-                        <CardTitle>Rapport des Ventes</CardTitle>
-                        <CardDescription>Ventes mensuelles pour les 6 derniers mois.</CardDescription>
+                        <CardTitle>{translations.fr.dashboard.stats.salesReportTitle}</CardTitle>
+                        <CardDescription>{translations.fr.dashboard.stats.salesReportDesc}</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <ChartContainer config={{}}>
@@ -142,8 +146,8 @@ function DashboardStats({ artworks }: { artworks: Artwork[] }) {
                 </Card>
                 <Card>
                     <CardHeader>
-                        <CardTitle>Répartition des Vues</CardTitle>
-                        <CardDescription>Vues par oeuvre.</CardDescription>
+                        <CardTitle>{translations.fr.dashboard.stats.viewsByArtworkTitle}</CardTitle>
+                        <CardDescription>{translations.fr.dashboard.stats.viewsByArtworkDesc}</CardDescription>
                     </CardHeader>
                     <CardContent>
                          <ChartContainer config={{}}>
@@ -155,7 +159,7 @@ function DashboardStats({ artworks }: { artworks: Artwork[] }) {
                                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                         ))}
                                     </Pie>
-                                    <Legend />
+                                    {viewsData.length > 0 && <Legend />}
                                 </PieChart>
                             </ResponsiveContainer>
                         </ChartContainer>
@@ -167,15 +171,16 @@ function DashboardStats({ artworks }: { artworks: Artwork[] }) {
 }
 
 function FinancialProjections() {
+    const t = translations.fr.dashboard.projections;
     return (
         <Card className="mt-8">
             <CardHeader>
-                <CardTitle>Projections de Revenus Mensuels</CardTitle>
-                <CardDescription>Estimation des revenus basés sur les différentes sources de monétisation.</CardDescription>
+                <CardTitle>{t.title}</CardTitle>
+                <CardDescription>{t.description}</CardDescription>
             </CardHeader>
             <CardContent className="grid gap-6 md:grid-cols-2">
                 <div>
-                     <h3 className="text-lg font-semibold mb-4">Répartition des revenus projetés</h3>
+                     <h3 className="text-lg font-semibold mb-4">{t.chartTitle}</h3>
                      <ChartContainer config={{}}>
                         <ResponsiveContainer width="100%" height={300}>
                             <BarChart data={projectionData} layout="vertical" margin={{ left: 100 }}>
@@ -201,15 +206,15 @@ function FinancialProjections() {
                 </div>
                 <div className="flex flex-col justify-center space-y-4">
                     <div className="text-center">
-                        <p className="text-muted-foreground text-lg">Total Projeté</p>
+                        <p className="text-muted-foreground text-lg">{t.totalProjected}</p>
                         <p className="text-4xl font-bold">{totalProjectedRevenue.toLocaleString('fr-FR')} €</p>
                     </div>
                     <ul className="space-y-2 text-sm">
-                        <li className="flex justify-between items-center"><Users className="mr-2 h-4 w-4 text-muted-foreground" /><span>Abonnements Utilisateurs/Artisans</span> <span className="font-medium">1200 €</span></li>
-                        <li className="flex justify-between items-center"><Package className="mr-2 h-4 w-4 text-muted-foreground" /><span>Commissions sur Ventes</span> <span className="font-medium">2500 €</span></li>
-                        <li className="flex justify-between items-center"><Music className="mr-2 h-4 w-4 text-muted-foreground" /><span>Ventes de Musique</span> <span className="font-medium">800 €</span></li>
-                        <li className="flex justify-between items-center"><Star className="mr-2 h-4 w-4 text-muted-foreground" /><span>Sponsoring & Partenariats</span> <span className="font-medium">1500 €</span></li>
-                        <li className="flex justify-between items-center"><Eye className="mr-2 h-4 w-4 text-muted-foreground" /><span>Publicité (Ads)</span> <span className="font-medium">600 €</span></li>
+                        <li className="flex justify-between items-center"><Users className="mr-2 h-4 w-4 text-muted-foreground" /><span>{t.subscriptions}</span> <span className="font-medium">1200 €</span></li>
+                        <li className="flex justify-between items-center"><Package className="mr-2 h-4 w-4 text-muted-foreground" /><span>{t.salesCommissions}</span> <span className="font-medium">2500 €</span></li>
+                        <li className="flex justify-between items-center"><Music className="mr-2 h-4 w-4 text-muted-foreground" /><span>{t.musicSales}</span> <span className="font-medium">800 €</span></li>
+                        <li className="flex justify-between items-center"><Star className="mr-2 h-4 w-4 text-muted-foreground" /><span>{t.sponsorship}</span> <span className="font-medium">1500 €</span></li>
+                        <li className="flex justify-between items-center"><Eye className="mr-2 h-4 w-4 text-muted-foreground" /><span>{t.advertising}</span> <span className="font-medium">600 €</span></li>
                     </ul>
                 </div>
             </CardContent>
@@ -221,9 +226,11 @@ function AddArtworkForm({ onArtworkAdd, onOpenChange }: { onArtworkAdd: (artwork
     const [title, setTitle] = useState('');
     const [price, setPrice] = useState('');
     const [description, setDescription] = useState('');
+    const [category, setCategory] = useState<typeof categories[number] | ''>('');
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const t = translations.fr.dashboard.addArtworkForm;
 
     const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -240,11 +247,12 @@ function AddArtworkForm({ onArtworkAdd, onOpenChange }: { onArtworkAdd: (artwork
         e.preventDefault();
         setIsSubmitting(true);
         try {
-            await onArtworkAdd({ title, price, description, image: imagePreview || 'https://placehold.co/100x100.png' });
+            await onArtworkAdd({ title, price, description, image: imagePreview || 'https://placehold.co/100x100.png', category: category || 'Peinture' });
             // Reset form
             setTitle('');
             setPrice('');
             setDescription('');
+            setCategory('');
             setImagePreview(null);
             if (fileInputRef.current) {
                 fileInputRef.current.value = '';
@@ -258,42 +266,53 @@ function AddArtworkForm({ onArtworkAdd, onOpenChange }: { onArtworkAdd: (artwork
     };
     
     return (
-        <form onSubmit={handleSubmit}>
-            <div className="grid gap-4 py-4">
-                <div className="space-y-2">
-                    <Label htmlFor="title">Titre de l'oeuvre</Label>
-                    <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Ex: Sculpture 'L'envol'" required />
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="price">Prix (€)</Label>
-                    <Input id="price" type="number" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="Ex: 450" required />
-                </div>
-                 <div className="space-y-2">
-                    <Label htmlFor="description">Description</Label>
-                    <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Décrivez votre oeuvre..." required />
-                </div>
-                <div className="space-y-2">
-                    <Label>Image</Label>
-                    {imagePreview ? (
-                         <div className="relative">
-                            <Image src={imagePreview} alt="Aperçu" width={100} height={100} className="rounded-md object-cover" />
-                            <Button variant="destructive" size="icon" className="absolute top-1 right-1 h-6 w-6" onClick={() => { setImagePreview(null); if(fileInputRef.current) fileInputRef.current.value = ''; }}>
-                                <X className="h-4 w-4" />
-                            </Button>
-                        </div>
-                    ) : (
-                        <div className="w-full h-32 border-2 border-dashed rounded-md flex flex-col justify-center items-center cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-                            <Upload className="h-8 w-8 text-muted-foreground" />
-                            <p className="text-sm text-muted-foreground">Cliquez pour choisir un fichier</p>
-                        </div>
-                    )}
-                    <Input id="image" type="file" ref={fileInputRef} onChange={handleImageChange} className="hidden" accept="image/*" />
-                </div>
+        <form onSubmit={handleSubmit} className="grid gap-4 py-4">
+            <div className="space-y-2">
+                <Label htmlFor="title">{t.titleLabel}</Label>
+                <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t.titlePlaceholder} required />
+            </div>
+             <div className="space-y-2">
+                <Label htmlFor="category">{t.categoryLabel}</Label>
+                <Select value={category} onValueChange={(value) => setCategory(value as typeof categories[number])} required>
+                    <SelectTrigger id="category">
+                        <SelectValue placeholder={t.categoryPlaceholder} />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {categories.map((cat) => (
+                            <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
+            <div className="space-y-2">
+                <Label htmlFor="price">{t.priceLabel}</Label>
+                <Input id="price" type="number" value={price} onChange={(e) => setPrice(e.target.value)} placeholder={t.pricePlaceholder} required />
+            </div>
+             <div className="space-y-2">
+                <Label htmlFor="description">{t.descriptionLabel}</Label>
+                <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder={t.descriptionPlaceholder} required />
+            </div>
+            <div className="space-y-2">
+                <Label>{t.imageLabel}</Label>
+                {imagePreview ? (
+                     <div className="relative">
+                        <Image src={imagePreview} alt="Aperçu" width={100} height={100} className="rounded-md object-cover" />
+                        <Button variant="destructive" size="icon" className="absolute top-1 right-1 h-6 w-6" onClick={() => { setImagePreview(null); if(fileInputRef.current) fileInputRef.current.value = ''; }}>
+                            <X className="h-4 w-4" />
+                        </Button>
+                    </div>
+                ) : (
+                    <div className="w-full h-32 border-2 border-dashed rounded-md flex flex-col justify-center items-center cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                        <Upload className="h-8 w-8 text-muted-foreground" />
+                        <p className="text-sm text-muted-foreground">{t.imagePlaceholder}</p>
+                    </div>
+                )}
+                <Input id="image" type="file" ref={fileInputRef} onChange={handleImageChange} className="hidden" accept="image/*" />
             </div>
             <DialogFooter>
                 <Button type="submit" disabled={isSubmitting}>
                     {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Ajouter l'oeuvre
+                    {t.submitButton}
                 </Button>
             </DialogFooter>
         </form>
@@ -306,6 +325,7 @@ function AddNewsForm({ onNewsAdd, onOpenChange }: { onNewsAdd: (news: Omit<NewsA
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const t = translations.fr.dashboard.addNewsForm;
 
     const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -340,15 +360,15 @@ function AddNewsForm({ onNewsAdd, onOpenChange }: { onNewsAdd: (news: Omit<NewsA
         <form onSubmit={handleSubmit}>
             <div className="grid gap-4 py-4">
                 <div className="space-y-2">
-                    <Label htmlFor="news-title">Titre de l'actualité</Label>
-                    <Input id="news-title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Ex: Grande Exposition à Conakry" required />
+                    <Label htmlFor="news-title">{t.titleLabel}</Label>
+                    <Input id="news-title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t.titlePlaceholder} required />
                 </div>
                 <div className="space-y-2">
-                    <Label htmlFor="news-content">Contenu</Label>
-                    <Textarea id="news-content" value={content} onChange={(e) => setContent(e.target.value)} placeholder="Rédigez votre article..." required rows={5} />
+                    <Label htmlFor="news-content">{t.contentLabel}</Label>
+                    <Textarea id="news-content" value={content} onChange={(e) => setContent(e.target.value)} placeholder={t.contentPlaceholder} required rows={5} />
                 </div>
                 <div className="space-y-2">
-                    <Label>Image de l'article</Label>
+                    <Label>{t.imageLabel}</Label>
                     {imagePreview ? (
                         <div className="relative">
                             <Image src={imagePreview} alt="Aperçu" width={200} height={100} className="rounded-md object-cover" />
@@ -359,7 +379,7 @@ function AddNewsForm({ onNewsAdd, onOpenChange }: { onNewsAdd: (news: Omit<NewsA
                     ) : (
                         <div className="w-full h-32 border-2 border-dashed rounded-md flex flex-col justify-center items-center cursor-pointer" onClick={() => fileInputRef.current?.click()}>
                             <Upload className="h-8 w-8 text-muted-foreground" />
-                            <p className="text-sm text-muted-foreground">Cliquez pour choisir une image</p>
+                            <p className="text-sm text-muted-foreground">{t.imagePlaceholder}</p>
                         </div>
                     )}
                     <Input id="news-image" type="file" ref={fileInputRef} onChange={handleImageChange} className="hidden" accept="image/*" />
@@ -368,7 +388,7 @@ function AddNewsForm({ onNewsAdd, onOpenChange }: { onNewsAdd: (news: Omit<NewsA
             <DialogFooter>
                 <Button type="submit" disabled={isSubmitting}>
                     {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Publier l'actualité
+                    {t.submitButton}
                 </Button>
             </DialogFooter>
         </form>
@@ -378,6 +398,7 @@ function AddNewsForm({ onNewsAdd, onOpenChange }: { onNewsAdd: (news: Omit<NewsA
 function NewsManagement({ news, onAddNews, onDeleteNews }: { news: NewsArticle[], onAddNews: (article: Omit<NewsArticle, 'id'>) => Promise<void>, onDeleteNews: (id: string) => void }) {
     const [isAddNewsOpen, setIsAddNewsOpen] = useState(false);
     const [newsToDelete, setNewsToDelete] = useState<NewsArticle | null>(null);
+    const t = translations.fr.dashboard.newsManagement;
 
     const handleDeleteConfirm = () => {
         if (newsToDelete) {
@@ -391,33 +412,33 @@ function NewsManagement({ news, onAddNews, onDeleteNews }: { news: NewsArticle[]
             <AlertDialog open={!!newsToDelete} onOpenChange={(isOpen) => !isOpen && setNewsToDelete(null)}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Êtes-vous sûr de vouloir supprimer cette actualité ?</AlertDialogTitle>
+                        <AlertDialogTitle>{t.deleteDialog.title}</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Cette action est irréversible. L'article "{newsToDelete?.title}" sera supprimé définitivement.
+                            {t.deleteDialog.description(newsToDelete?.title || '')}
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel onClick={() => setNewsToDelete(null)}>Annuler</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDeleteConfirm}>Supprimer</AlertDialogAction>
+                        <AlertDialogCancel onClick={() => setNewsToDelete(null)}>{t.deleteDialog.cancel}</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDeleteConfirm}>{t.deleteDialog.confirm}</AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
             <Card className="mt-8">
                 <CardHeader className="flex-row justify-between items-center">
                     <div>
-                        <CardTitle>Gestion des Actualités</CardTitle>
-                        <CardDescription>Ajoutez, modifiez ou supprimez les articles de votre site.</CardDescription>
+                        <CardTitle>{t.title}</CardTitle>
+                        <CardDescription>{t.description}</CardDescription>
                     </div>
                     <Dialog open={isAddNewsOpen} onOpenChange={setIsAddNewsOpen}>
                         <DialogTrigger asChild>
                             <Button>
-                                <PlusCircle className="mr-2 h-4 w-4" /> Ajouter une actualité
+                                <PlusCircle className="mr-2 h-4 w-4" /> {t.addNewsButton}
                             </Button>
                         </DialogTrigger>
                         <DialogContent>
                             <DialogHeader>
-                                <DialogTitle>Ajouter une nouvelle actualité</DialogTitle>
-                                <DialogDescription>Remplissez les informations ci-dessous pour publier un nouvel article.</DialogDescription>
+                                <DialogTitle>{t.addDialog.title}</DialogTitle>
+                                <DialogDescription>{t.addDialog.description}</DialogDescription>
                             </DialogHeader>
                             <AddNewsForm onNewsAdd={onAddNews} onOpenChange={setIsAddNewsOpen} />
                         </DialogContent>
@@ -427,15 +448,15 @@ function NewsManagement({ news, onAddNews, onDeleteNews }: { news: NewsArticle[]
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead>Titre</TableHead>
-                                <TableHead>Date de publication</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
+                                <TableHead>{t.table.title}</TableHead>
+                                <TableHead>{t.table.publicationDate}</TableHead>
+                                <TableHead className="text-right">{t.table.actions}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {news.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={3} className="text-center h-24">Aucune actualité trouvée.</TableCell>
+                                    <TableCell colSpan={3} className="text-center h-24">{t.noNewsFound}</TableCell>
                                 </TableRow>
                             ) : (
                                 news.map(article => (
@@ -450,8 +471,8 @@ function NewsManagement({ news, onAddNews, onDeleteNews }: { news: NewsArticle[]
                                                     </Button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end">
-                                                    <DropdownMenuItem onClick={() => alert('Modification bientôt disponible')}>Modifier</DropdownMenuItem>
-                                                    <DropdownMenuItem className="text-red-500" onClick={() => setNewsToDelete(article)}>Supprimer</DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => alert(t.editSoon)}>{t.editAction}</DropdownMenuItem>
+                                                    <DropdownMenuItem className="text-red-500" onClick={() => setNewsToDelete(article)}>{t.deleteAction}</DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </TableCell>
@@ -474,6 +495,7 @@ function ArtisanDashboard() {
   const [isAddArtworkOpen, setIsAddArtworkOpen] = useState(false);
   const [artworkToDelete, setArtworkToDelete] = useState<Artwork | null>(null);
   const { toast } = useToast();
+  const t = translations.fr.dashboard;
   
   const isPremium = false; 
   const artworkLimit = 3;
@@ -489,11 +511,19 @@ function ArtisanDashboard() {
     }, []);
 
     useEffect(() => {
-        if (!user) return;
+        if (!user) {
+            // Handle case where user is not logged in, or auth is still initializing
+            if (auth?.currentUser === null) {
+                setIsLoading(false);
+            }
+            return;
+        }
 
-        // In a real app, you'd get the artisan's ID securely
-        const DUMMY_ARTISAN_ID = 'mamadou-aliou-barry';
-        const artworksQuery = query(collection(db, "artworks"), where("artisanId", "==", DUMMY_ARTISAN_ID));
+        // Use the actual user's UID to find their artisan profile ID
+        // For demo, we still use a hardcoded mapping, but this is where you'd look up the artisan profile
+        const DUMMY_ARTISAN_ID = user?.email === "mamadou.barry@example.com" ? "mamadou-aliou-barry" : "fatoumata-camara";
+        
+        const artworksQuery = query(collection(db, "artworks"), where("artisanId", "==", user.uid));
         
         const unsubscribeArtworks = onSnapshot(artworksQuery, (querySnapshot) => {
             const fetchedArtworks = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Artwork));
@@ -504,6 +534,7 @@ function ArtisanDashboard() {
             setIsLoading(false);
         });
 
+        // News is not artisan-specific, so the query remains the same
         const newsQuery = query(collection(db, "news"));
         const unsubscribeNews = onSnapshot(newsQuery, (querySnapshot) => {
             const fetchedNews = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as NewsArticle));
@@ -520,23 +551,21 @@ function ArtisanDashboard() {
 
   const handleAddArtwork = async (newArtworkData: Omit<Artwork, 'id' | 'status' | 'views' | 'sales' | 'artisanId'>) => {
     if (!user) {
-        toast({ title: "Non authentifié", description: "Vous devez être connecté.", variant: "destructive" });
+        toast({ title: t.toasts.notAuthenticated, description: t.toasts.mustBeLoggedIn, variant: "destructive" });
         return;
     }
     if (!isPremium && artworks.length >= artworkLimit) {
         toast({
-            title: "Limite Atteinte",
-            description: "Passez à Premium pour ajouter plus de 3 œuvres.",
+            title: t.toasts.limitReached,
+            description: t.toasts.limitReachedDesc,
             variant: "destructive"
         });
         return;
     }
 
-    const DUMMY_ARTISAN_ID = 'mamadou-aliou-barry';
-
-    const newArtwork = {
+    const newArtwork: Omit<Artwork, 'id'> = {
         ...newArtworkData,
-        artisanId: DUMMY_ARTISAN_ID,
+        artisanId: user.uid, // Use the real user ID
         status: 'Brouillon' as const,
         views: 0,
         sales: 0
@@ -545,8 +574,8 @@ function ArtisanDashboard() {
     await addDoc(collection(db, "artworks"), newArtwork);
     
     toast({
-      title: 'Oeuvre Ajoutée',
-      description: `"${newArtwork.title}" a été ajoutée à vos brouillons.`,
+      title: t.toasts.artworkAdded,
+      description: t.toasts.artworkAddedDesc(newArtwork.title),
     });
   };
 
@@ -555,13 +584,13 @@ function ArtisanDashboard() {
     try {
         await deleteDoc(doc(db, "artworks", artworkToDelete.id));
         toast({
-         title: 'Oeuvre Supprimée',
-         description: `"${artworkToDelete.title}" a été supprimée.`,
+         title: t.toasts.artworkDeleted,
+         description: t.toasts.artworkDeletedDesc(artworkToDelete.title),
          variant: "destructive"
        });
     } catch (error) {
         console.error("Error deleting artwork: ", error);
-        toast({ title: "Erreur", description: "La suppression a échoué.", variant: "destructive" });
+        toast({ title: t.toasts.error, description: t.toasts.deleteFailed, variant: "destructive" });
     }
     setArtworkToDelete(null);
   };
@@ -572,24 +601,24 @@ function ArtisanDashboard() {
         await updateDoc(artworkRef, { status: 'Publiée' });
         const artworkToPublish = artworks.find(a => a.id === id);
         toast({
-          title: 'Oeuvre Publiée!',
-          description: `"${artworkToPublish?.title}" est maintenant en ligne.`,
+          title: t.toasts.artworkPublished,
+          description: t.toasts.artworkPublishedDesc(artworkToPublish?.title || ''),
         });
     } catch(error) {
         console.error("Error publishing artwork: ", error);
-        toast({ title: "Erreur", description: "La publication a échoué.", variant: "destructive" });
+        toast({ title: t.toasts.error, description: t.toasts.publishFailed, variant: "destructive" });
     }
   };
   
   const handleAddNews = async (newNewsData: Omit<NewsArticle, 'id'>) => {
     if (!user) {
-      toast({ title: "Non authentifié", description: "Vous devez être connecté.", variant: "destructive" });
+      toast({ title: t.toasts.notAuthenticated, description: t.toasts.mustBeLoggedIn, variant: "destructive" });
       return;
     }
     await addDoc(collection(db, "news"), newNewsData);
     toast({
-      title: 'Actualité Ajoutée',
-      description: `L'article "${newNewsData.title}" a été publié.`,
+      title: t.toasts.newsAdded,
+      description: t.toasts.newsAddedDesc(newNewsData.title),
     });
   };
 
@@ -597,13 +626,13 @@ function ArtisanDashboard() {
     try {
       await deleteDoc(doc(db, "news", id));
       toast({
-        title: 'Actualité Supprimée',
-        description: `L'article a bien été supprimé.`,
+        title: t.toasts.newsDeleted,
+        description: t.toasts.newsDeletedDesc,
         variant: 'destructive',
       });
     } catch (error) {
       console.error("Error deleting news:", error);
-      toast({ title: "Erreur", description: "La suppression a échoué.", variant: "destructive" });
+      toast({ title: t.toasts.error, description: t.toasts.deleteFailed, variant: "destructive" });
     }
   };
 
@@ -613,32 +642,30 @@ function ArtisanDashboard() {
        <AlertDialog open={!!artworkToDelete} onOpenChange={(isOpen) => !isOpen && setArtworkToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Êtes-vous sûr de vouloir supprimer cette œuvre ?</AlertDialogTitle>
+            <AlertDialogTitle>{t.deleteArtworkDialog.title}</AlertDialogTitle>
             <AlertDialogDescription>
-              Cette action est irréversible. L'œuvre "{artworkToDelete?.title}" sera supprimée définitivement.
+              {t.deleteArtworkDialog.description(artworkToDelete?.title || '')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setArtworkToDelete(null)}>Annuler</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteConfirm}>Supprimer</AlertDialogAction>
+            <AlertDialogCancel onClick={() => setArtworkToDelete(null)}>{t.deleteArtworkDialog.cancel}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteConfirm}>{t.deleteArtworkDialog.confirm}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-4xl font-headline font-bold">Tableau de Bord</h1>
+        <h1 className="text-4xl font-headline font-bold">{t.title}</h1>
         <Dialog open={isAddArtworkOpen} onOpenChange={setIsAddArtworkOpen}>
             <DialogTrigger asChild>
                  <Button disabled={!isPremium && artworks.length >= artworkLimit}>
-                    <PlusCircle className="mr-2 h-4 w-4" /> Ajouter une oeuvre
+                    <PlusCircle className="mr-2 h-4 w-4" /> {t.addArtworkButton}
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                <DialogTitle>Ajouter une nouvelle oeuvre</DialogTitle>
-                <DialogDescription>
-                    Remplissez les détails de votre création. Cliquez sur ajouter lorsque vous avez terminé.
-                </DialogDescription>
+                    <DialogTitle>{t.addArtworkDialog.title}</DialogTitle>
+                    <DialogDescription>{t.addArtworkDialog.description}</DialogDescription>
                 </DialogHeader>
                 <AddArtworkForm onArtworkAdd={handleAddArtwork} onOpenChange={setIsAddArtworkOpen} />
             </DialogContent>
@@ -653,29 +680,29 @@ function ArtisanDashboard() {
 
       <Card className="mt-8">
         <CardHeader>
-          <CardTitle>Mes Oeuvres</CardTitle>
+          <CardTitle>{t.myArtworks.title}</CardTitle>
           <CardDescription>
-            Gérez vos créations. Vous avez {artworks.length}/{artworkLimit} œuvres.
-            {!isPremium && ' Passez à Premium pour en ajouter plus.'}
+             {t.myArtworks.description(artworks.length, artworkLimit, isPremium)}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Image</TableHead>
-                <TableHead>Titre</TableHead>
-                <TableHead>Prix</TableHead>
-                <TableHead>Vues</TableHead>
-                <TableHead>Ventes</TableHead>
-                <TableHead>Statut</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>{t.myArtworks.table.image}</TableHead>
+                <TableHead>{t.myArtworks.table.title}</TableHead>
+                <TableHead>{t.myArtworks.table.category}</TableHead>
+                <TableHead>{t.myArtworks.table.price}</TableHead>
+                <TableHead>{t.myArtworks.table.views}</TableHead>
+                <TableHead>{t.myArtworks.table.sales}</TableHead>
+                <TableHead>{t.myArtworks.table.status}</TableHead>
+                <TableHead className="text-right">{t.myArtworks.table.actions}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
                   <TableRow>
-                      <TableCell colSpan={7} className="text-center">
+                      <TableCell colSpan={8} className="text-center">
                           <Loader2 className="mx-auto h-6 w-6 animate-spin" />
                       </TableCell>
                   </TableRow>
@@ -686,6 +713,7 @@ function ArtisanDashboard() {
                         <Image src={artwork.image} alt={artwork.title} width={40} height={40} className="rounded-md object-cover" data-ai-hint="artwork image"/>
                     </TableCell>
                     <TableCell className="font-medium">{artwork.title}</TableCell>
+                    <TableCell>{artwork.category}</TableCell>
                     <TableCell>{artwork.price} €</TableCell>
                     <TableCell>{artwork.views.toLocaleString('fr-FR')}</TableCell>
                     <TableCell>{artwork.sales.toLocaleString('fr-FR')}</TableCell>
@@ -703,9 +731,9 @@ function ArtisanDashboard() {
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => alert('La modification sera bientôt disponible !')}>Modifier</DropdownMenuItem>
-                            {artwork.status !== 'Publiée' && <DropdownMenuItem onClick={() => publishArtwork(artwork.id)}>Publier</DropdownMenuItem>}
-                            <DropdownMenuItem className="text-red-500" onClick={() => setArtworkToDelete(artwork)}>Supprimer</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => alert(t.myArtworks.editSoon)}>{t.myArtworks.editAction}</DropdownMenuItem>
+                            {artwork.status !== 'Publiée' && <DropdownMenuItem onClick={() => publishArtwork(artwork.id)}>{t.myArtworks.publishAction}</DropdownMenuItem>}
+                            <DropdownMenuItem className="text-red-500" onClick={() => setArtworkToDelete(artwork)}>{t.myArtworks.deleteAction}</DropdownMenuItem>
                         </DropdownMenuContent>
                         </DropdownMenu>
                     </TableCell>
@@ -726,3 +754,5 @@ function ArtisanDashboard() {
 export default function DashboardPage() {
     return <ArtisanDashboard />;
 }
+
+    

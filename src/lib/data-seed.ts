@@ -3,6 +3,8 @@
 // This file is for seeding the database and is a copy of the original data.
 // It's separate to avoid including it in the main client bundle.
 import type { Artisan } from './data';
+import { categories } from './data';
+
 
 export type Message = {
   id: string;
@@ -48,6 +50,7 @@ export type Artwork = {
     sales: number;
     description: string;
     artisanId: string;
+    category: (typeof categories)[number];
 };
 
 export type NewsArticle = {
@@ -325,9 +328,10 @@ export const orders: Order[] = [
 ];
 
 export const artworks: Artwork[] = [
-  { id: 'art-1', title: 'Sculpture en Bronze "L\'envol"', image: '/images/gallery/mamadou-aliou-barry/1.png', price: '450', status: 'Publiée', views: 1200, sales: 5, description: 'Une sculpture magnifique.', artisanId: 'mamadou-aliou-barry' },
-  { id: 'art-2', title: 'Chanson "Conakry Blues"', image: '/images/gallery/amina-kourouma/1.png', price: '1.99', status: 'Publiée', views: 8500, sales: 1500, description: 'Un morceau soul.', artisanId: 'amina-kourouma' },
-  { id: 'art-3', title: 'Chaussures en cuir "Nomade"', image: '/images/gallery/issa-conde/1.png', price: '120', status: 'Brouillon', views: 350, sales: 12, description: 'Chaussures faites main.', artisanId: 'issa-conde' },
+  { id: 'art-1', title: 'Sculpture en Bronze "L\'envol"', image: '/images/gallery/mamadou-aliou-barry/1.png', price: '450', status: 'Publiée', views: 1200, sales: 5, description: 'Une sculpture magnifique.', artisanId: 'mamadou-aliou-barry', category: 'Sculpture' },
+  { id: 'art-2', title: 'Chanson "Conakry Blues"', image: '/images/gallery/amina-kourouma/1.png', price: '1.99', status: 'Publiée', views: 8500, sales: 1500, description: 'Un morceau soul.', artisanId: 'amina-kourouma', category: 'Musique' },
+  { id: 'art-3', title: 'Chaussures en cuir "Nomade"', image: '/images/gallery/issa-conde/1.png', price: '120', status: 'Brouillon', views: 350, sales: 12, description: 'Chaussures faites main.', artisanId: 'issa-conde', category: 'Chaussures' },
+  { id: 'art-4', title: 'Robe "Soleil de Conakry"', image: '/images/gallery/fatoumata-camara/1.png', price: '250', status: 'Publiée', views: 2500, sales: 15, description: 'Robe de haute couture.', artisanId: 'fatoumata-camara', category: 'Mode' },
 ];
 
     
