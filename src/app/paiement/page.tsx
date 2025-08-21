@@ -1,11 +1,16 @@
 
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { CreditCard, ShoppingCart, Smartphone } from "lucide-react";
+import { CreditCard, ShoppingCart, Smartphone, CheckCircle } from "lucide-react";
 import Image from "next/image";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
 
 // Dummy data for cart items
 const cartItems = [
@@ -15,22 +20,38 @@ const cartItems = [
 ]
 
 export default function PaiementPage() {
+    const { toast } = useToast();
+    const [isLoading, setIsLoading] = useState(false);
+
     const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
     const taxes = subtotal * 0.1; // Example tax rate
     const total = subtotal + taxes;
+
+    const handlePayment = (method: string) => {
+        setIsLoading(true);
+        // Simulate API call
+        setTimeout(() => {
+            setIsLoading(false);
+            toast({
+                title: "Paiement Réussi!",
+                description: `Votre paiement via ${method} a été traité avec succès.`,
+            });
+        }, 2000);
+    };
+
 
     return (
         <div className="container mx-auto px-4 py-16">
              <div className="text-center mb-12">
                 <ShoppingCart className="h-16 w-16 mx-auto text-primary mb-4" />
-                <h1 className="text-4xl md:text-5xl font-headline font-bold">Votre Panier</h1>
+                <h1 className="text-4xl md:text-5xl font-headline font-bold">Finaliser la Commande</h1>
                 <p className="text-lg text-muted-foreground mt-2 max-w-2xl mx-auto">
-                    Vérifiez votre commande et procédez au paiement.
+                    Vérifiez votre commande et choisissez votre méthode de paiement.
                 </p>
             </div>
             
-            <div className="grid md:grid-cols-3 gap-8">
-                <div className="md:col-span-2">
+            <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
+                <div className="space-y-8">
                     <Card>
                         <CardHeader>
                             <CardTitle>Détails de la commande</CardTitle>
@@ -54,11 +75,9 @@ export default function PaiementPage() {
                             </div>
                         </CardContent>
                     </Card>
-                </div>
-                <div>
                      <Card>
                         <CardHeader>
-                            <CardTitle>Résumé</CardTitle>
+                            <CardTitle>Résumé de la commande</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="flex justify-between">
@@ -75,24 +94,73 @@ export default function PaiementPage() {
                                 <p>{total.toFixed(2)} €</p>
                             </div>
                         </CardContent>
-                        <CardFooter className="flex-col gap-4">
-                            <Button className="w-full" size="lg">
-                                <CreditCard className="mr-2 h-5 w-5" /> Procéder au paiement
-                            </Button>
-                            <div className="text-center w-full">
-                                <p className="text-sm font-medium mb-2">Paiements mobiles acceptés</p>
-                                <div className="flex items-center justify-center gap-4">
-                                    <div className="flex items-center gap-2">
-                                        <Image src="https://placehold.co/40x25.png" data-ai-hint="orange money logo" alt="Orange Money" width={40} height={25} />
-                                        <span className="text-xs font-semibold">Orange Money</span>
+                    </Card>
+                </div>
+                <div>
+                     <Card>
+                        <CardHeader>
+                            <CardTitle>Paiement</CardTitle>
+                            <CardDescription>Choisissez votre méthode de paiement préférée.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                           <Tabs defaultValue="card">
+                               <TabsList className="grid w-full grid-cols-3">
+                                   <TabsTrigger value="card"><CreditCard className="mr-2 h-4 w-4" /> Carte</TabsTrigger>
+                                   <TabsTrigger value="orange"><Smartphone className="mr-2 h-4 w-4" /> Orange</TabsTrigger>
+                                   <TabsTrigger value="kulu"><Smartphone className="mr-2 h-4 w-4" /> Kulu</TabsTrigger>
+                               </TabsList>
+                               <TabsContent value="card" className="mt-6">
+                                    <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); handlePayment("Stripe"); }}>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="card-number">Numéro de carte</Label>
+                                            <Input id="card-number" placeholder="0000 0000 0000 0000" required />
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="space-y-2">
+                                                <Label htmlFor="expiry-date">Date d'expiration</Label>
+                                                <Input id="expiry-date" placeholder="MM/AA" required />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor="cvc">CVC</Label>
+                                                <Input id="cvc" placeholder="123" required />
+                                            </div>
+                                        </div>
+                                        <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
+                                            {isLoading ? "Traitement..." : `Payer ${total.toFixed(2)} €`}
+                                        </Button>
+                                    </form>
+                               </TabsContent>
+                               <TabsContent value="orange" className="mt-6">
+                                    <div className="flex justify-center mb-4">
+                                        <Image src="https://placehold.co/80x50.png" data-ai-hint="orange money logo" alt="Orange Money" width={80} height={50} />
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                         <Smartphone className="h-5 w-5" />
-                                        <span className="text-xs font-semibold">Kulu</span>
+                                    <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); handlePayment("Orange Money"); }}>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="om-phone">Numéro de téléphone Orange</Label>
+                                            <Input id="om-phone" type="tel" placeholder="+224 620 00 00 00" required />
+                                        </div>
+                                        <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
+                                            {isLoading ? "Traitement..." : `Payer ${total.toFixed(2)} € avec Orange Money`}
+                                        </Button>
+                                    </form>
+                               </TabsContent>
+                               <TabsContent value="kulu" className="mt-6">
+                                    <div className="flex justify-center mb-4">
+                                        <Smartphone className="h-12 w-12 text-primary" />
                                     </div>
-                                </div>
-                            </div>
-                        </CardFooter>
+                                    <p className="text-center font-bold text-xl mb-4">Paiement Kulu</p>
+                                    <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); handlePayment("Kulu"); }}>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="kulu-id">Identifiant Kulu</Label>
+                                            <Input id="kulu-id" placeholder="Votre identifiant Kulu" required />
+                                        </div>
+                                        <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
+                                           {isLoading ? "Traitement..." : `Payer ${total.toFixed(2)} € avec Kulu`}
+                                        </Button>
+                                    </form>
+                               </TabsContent>
+                           </Tabs>
+                        </CardContent>
                     </Card>
                 </div>
             </div>
