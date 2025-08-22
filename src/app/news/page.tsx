@@ -8,19 +8,30 @@ import { format } from 'date-fns';
 import { Badge } from "@/components/ui/badge";
 import { useState, useEffect } from 'react';
 import { Skeleton } from "@/components/ui/skeleton";
+import { db } from "@/lib/firebase";
+import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+
 
 export default function NewsPage() {
   const [news, setNews] = useState<NewsArticle[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchNews = async () => {
-      setIsLoading(true);
-      const fetchedNews = await getNews();
-      setNews(fetchedNews);
-      setIsLoading(false);
+    if (!db) {
+        setIsLoading(false);
+        return;
     };
-    fetchNews();
+    const q = query(collection(db, "news"), orderBy("date", "desc"));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const fetchedNews = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as NewsArticle));
+        setNews(fetchedNews);
+        setIsLoading(false);
+    }, (error) => {
+        console.error("Error fetching news:", error);
+        setIsLoading(false);
+    });
+
+    return () => unsubscribe();
   }, []);
 
   return (
@@ -75,5 +86,3 @@ export default function NewsPage() {
     </div>
   );
 }
-
-    

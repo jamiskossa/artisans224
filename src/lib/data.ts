@@ -1,5 +1,5 @@
 import { db } from './firebase';
-import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc, query, orderBy } from 'firebase/firestore';
 
 export const categories = ['Mode', 'Sculpture', 'Bijoux', 'Musique', 'Chaussures', 'Peinture'] as const;
 
@@ -64,10 +64,10 @@ export async function getNews(): Promise<NewsArticle[]> {
   if (!db) return [];
    try {
     const newsCol = collection(db, 'news');
-    const newsSnapshot = await getDocs(newsCol);
+    const newsQuery = query(newsCol, orderBy('date', 'desc'));
+    const newsSnapshot = await getDocs(newsQuery);
     const newsList = newsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as NewsArticle));
-    // Sort news by date descending
-    return newsList.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    return newsList;
   } catch(error) {
     console.error("Error fetching news:", error);
     return [];
